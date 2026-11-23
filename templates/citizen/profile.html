@@ -1,0 +1,352 @@
+{% extends "citizen/layout.html" %}
+
+{% block title %}My Profile - Civic Connects{% endblock %}
+{% block page_title %}Citizen Account Profile{% endblock %}
+
+{% block portal_content %}
+<div style="max-width: 860px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem;">
+
+  <!-- Profile Hero / Identity Overview Card -->
+  <div class="panel-card" style="margin-bottom: 0; background: linear-gradient(135deg, #FFFFFF 0%, #F8FAFC 100%);">
+    <div class="panel-body" style="padding: 2rem;">
+      <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 1.5rem;">
+        
+        <div style="display: flex; align-items: center; gap: 1.5rem;">
+          <!-- Avatar Preview Container -->
+          <div style="position: relative; width: 90px; height: 90px; border-radius: 50%; border: 3px solid #FFFFFF; box-shadow: var(--shadow-md); background: #EFF6FF; overflow: hidden; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+            {% if user.avatar_url %}
+              <img id="avatarHeroPreview" 
+                   src="{{ user.avatar_url if (user.avatar_url.startswith('http://') or user.avatar_url.startswith('https://')) else url_for('static', filename='uploads/avatars/' + user.avatar_url) }}" 
+                   alt="{{ user.name }}" 
+                   style="width: 100%; height: 100%; object-fit: cover;">
+            {% else %}
+              <span id="avatarHeroInitial" style="font-size: 2.25rem; font-weight: 800; color: var(--brand-blue);">
+                {{ user.name[:1]|upper }}
+              </span>
+            {% endif %}
+          </div>
+
+          <div>
+            <div style="display: flex; align-items: center; gap: 0.5rem; flex-wrap: wrap;">
+              <h2 style="font-size: 1.5rem; font-weight: 800; color: var(--text-main); margin: 0;">{{ user.name }}</h2>
+              <span class="badge-status status-resolved" style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase;">
+                Verified Resident
+              </span>
+            </div>
+            <div style="color: var(--text-muted); font-size: 0.9rem; margin-top: 0.25rem;">{{ user.email }}</div>
+            <div style="color: var(--text-light); font-size: 0.8125rem; margin-top: 0.25rem;">
+              Member since: {{ user.created_at }} &bull; Role: Resident Citizen
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions & Stats -->
+        <div style="display: flex; align-items: center; gap: 1rem; flex-wrap: wrap;">
+          <div style="text-align: right; border-right: 1px solid var(--border-subtle); padding-right: 1.25rem;">
+            <div style="font-size: 1.5rem; font-weight: 800; color: var(--brand-blue);">{{ stats.total }}</div>
+            <div style="font-size: 0.75rem; font-weight: 600; text-transform: uppercase; color: var(--text-muted);">Grievances Filed</div>
+          </div>
+
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm" style="color: #EF4444; border-color: rgba(239, 68, 68, 0.3); font-weight: 600; display: inline-flex; align-items: center; gap: 0.4rem;">
+            <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path><polyline points="16 17 21 12 16 7"></polyline><line x1="21" y1="12" x2="9" y2="12"></line></svg>
+            Sign Out
+          </a>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- Profile Photo Upload Card -->
+  <div class="panel-card" style="margin-bottom: 0;">
+    <div class="panel-header">
+      <div>
+        <h3 class="panel-title">Profile Photo</h3>
+        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.2rem;">
+          Upload a clear portrait avatar. Supported formats: PNG, JPG, JPEG, WEBP (Max 5MB).
+        </p>
+      </div>
+    </div>
+
+    <div class="panel-body">
+      <form action="{{ url_for('citizen.profile') }}" method="POST" enctype="multipart/form-data" id="avatarForm">
+        <input type="hidden" name="action" value="upload_avatar">
+
+        <div style="display: flex; align-items: center; gap: 2rem; flex-wrap: wrap;">
+          <!-- Interactive Preview Thumbnail -->
+          <div style="width: 80px; height: 80px; border-radius: 50%; background: #EFF6FF; border: 2px dashed var(--brand-blue-border); display: flex; align-items: center; justify-content: center; overflow: hidden; position: relative;">
+            <img id="clientAvatarPreview" 
+                 src="{% if user.avatar_url %}{{ user.avatar_url if (user.avatar_url.startswith('http://') or user.avatar_url.startswith('https://')) else url_for('static', filename='uploads/avatars/' + user.avatar_url) }}{% endif %}" 
+                 alt="Preview" 
+                 style="width: 100%; height: 100%; object-fit: cover; {% if not user.avatar_url %}display: none;{% endif %}">
+            <span id="avatarPlaceholderIcon" style="{% if user.avatar_url %}display: none;{% endif %} color: var(--brand-blue);">
+              <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+            </span>
+          </div>
+
+          <!-- File Input & Controls -->
+          <div style="flex: 1; min-width: 260px;">
+            <div style="display: flex; gap: 0.75rem; align-items: center; flex-wrap: wrap;">
+              <label for="avatarInput" class="btn btn-secondary btn-sm" style="cursor: pointer; font-weight: 600;">
+                <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path><polyline points="17 8 12 3 7 8"></polyline><line x1="12" y1="3" x2="12" y2="15"></line></svg>
+                Choose Photo File
+              </label>
+              <input type="file" id="avatarInput" name="avatar" accept="image/png, image/jpeg, image/jpg, image/webp" style="display: none;">
+              
+              <button type="submit" id="saveAvatarBtn" class="btn btn-primary btn-sm" style="display: none;">
+                Save Avatar
+              </button>
+
+              {% if user.avatar_url %}
+                <button type="submit" form="removeAvatarForm" class="btn btn-secondary btn-sm" style="color: #EF4444;">
+                  Remove Photo
+                </button>
+              {% endif %}
+            </div>
+
+            <div id="avatarFileName" style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.5rem;">
+              {% if user.avatar_url %}Current file: {{ user.avatar_url }}{% else %}No image chosen{% endif %}
+            </div>
+            <div id="avatarErrorAlert" style="display: none; color: #DC2626; font-size: 0.8125rem; font-weight: 600; margin-top: 0.35rem;"></div>
+          </div>
+        </div>
+      </form>
+
+      <!-- Separate form for remove avatar -->
+      <form action="{{ url_for('citizen.profile') }}" method="POST" id="removeAvatarForm" style="display: none;">
+        <input type="hidden" name="action" value="remove_avatar">
+      </form>
+    </div>
+  </div>
+
+  <!-- Personal Information Card -->
+  <div class="panel-card" style="margin-bottom: 0;">
+    <div class="panel-header">
+      <div>
+        <h3 class="panel-title">Personal Contact Details</h3>
+        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.2rem;">
+          Municipal dispatch teams use these details for on-site verification and follow-ups.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel-body">
+      <form action="{{ url_for('citizen.profile') }}" method="POST">
+        <input type="hidden" name="action" value="update_info">
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.25rem;">
+          <div class="form-group">
+            <label for="userName" class="form-label">Full Legal Name <span class="required">*</span></label>
+            <input type="text" id="userName" name="name" class="form-control" value="{{ user.name }}" required>
+          </div>
+
+          <div class="form-group">
+            <label for="userEmail" class="form-label">Registered Email Address</label>
+            <input type="email" id="userEmail" class="form-control" value="{{ user.email }}" disabled style="background-color: var(--bg-subtle); cursor: not-allowed;">
+            <span class="form-hint">Email serves as your primary security identity and is immutable.</span>
+          </div>
+
+          <div class="form-group">
+            <label for="userPhone" class="form-label">Mobile Phone Number <span class="required">*</span></label>
+            <input type="tel" 
+                   id="userPhone" 
+                   name="phone" 
+                   class="form-control" 
+                   value="{{ user.phone }}" 
+                   placeholder="9876543210" 
+                   maxlength="15"
+                   pattern="^(?:\+91[\-\s]?)?[6-9]\d{9}$"
+                   title="Please enter a valid 10-digit Indian mobile number starting with 6, 7, 8, or 9"
+                   required>
+            <span class="form-hint">Standard 10-digit Indian mobile number (e.g. 9876543210 or +91 98765 43210).</span>
+          </div>
+
+          <div class="form-group">
+            <label for="userAddress" class="form-label">Residential Ward / Address</label>
+            <input type="text" id="userAddress" name="address" class="form-control" value="{{ user.address or '' }}" placeholder="e.g. Ward 4, Civic Heights">
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button type="submit" class="btn btn-primary" style="font-weight: 600;">
+            Save Contact Details
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Security & Password Change Card -->
+  <div class="panel-card" style="margin-bottom: 0;">
+    <div class="panel-header">
+      <div>
+        <h3 class="panel-title">Security &amp; Password Management</h3>
+        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.2rem;">
+          Keep your resident portal account protected with a strong, distinct password.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel-body">
+      <form action="{{ url_for('citizen.profile') }}" method="POST">
+        <input type="hidden" name="action" value="change_password">
+
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 1.25rem;">
+          <div class="form-group">
+            <label for="currPwd" class="form-label">Current Password <span class="required">*</span></label>
+            <input type="password" id="currPwd" name="current_password" class="form-control" required>
+          </div>
+
+          <div class="form-group">
+            <label for="newPwd" class="form-label">New Password <span class="required">*</span></label>
+            <input type="password" id="newPwd" name="new_password" class="form-control" placeholder="Min. 6 characters" minlength="6" required>
+          </div>
+
+          <div class="form-group">
+            <label for="confirmNewPwd" class="form-label">Confirm New Password <span class="required">*</span></label>
+            <input type="password" id="confirmNewPwd" name="confirm_password" class="form-control" placeholder="Re-type new password" minlength="6" required>
+          </div>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button type="submit" class="btn btn-secondary" style="font-weight: 600;">
+            Update Account Password
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Danger Zone Card -->
+  <div class="panel-card" style="margin-bottom: 0; border: 1px solid #FECACA; background: #FFFDFD;">
+    <div class="panel-header" style="background: #FEF2F2; border-bottom: 1px solid #FECACA;">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#DC2626" stroke-width="2.2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path><line x1="12" y1="9" x2="12" y2="13"></line><line x1="12" y1="17" x2="12.01" y2="17"></line></svg>
+        <h3 class="panel-title" style="color: #DC2626;">Danger Zone</h3>
+      </div>
+    </div>
+
+    <div class="panel-body">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1.5rem;">
+        <div>
+          <div style="font-weight: 700; color: var(--text-main); font-size: 1rem;">Permanently Delete Resident Account</div>
+          <p style="color: var(--text-muted); font-size: 0.875rem; margin-top: 0.25rem; max-width: 540px;">
+            Once your account is deleted, all personal records, session credentials, and associated identity details are permanently purged. This action is irreversible.
+          </p>
+        </div>
+
+        <button type="button" class="btn" style="background: #DC2626; color: #FFFFFF; font-weight: 700; padding: 0.75rem 1.5rem; border: none; border-radius: var(--radius-md);" onclick="document.getElementById('deleteConfirmModal').style.display='flex';">
+          Delete Account
+        </button>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Delete Confirmation Modal Dialog -->
+<div id="deleteConfirmModal" style="display: none; position: fixed; inset: 0; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(4px); z-index: 99999; align-items: center; justify-content: center; padding: 1.5rem;">
+  <div class="panel-card" style="max-width: 480px; width: 100%; border-radius: var(--radius-lg); box-shadow: var(--shadow-lg); border: 2px solid #FECACA; background: #FFFFFF; overflow: hidden; margin: 0;">
+    <div style="padding: 1.5rem; background: #FEF2F2; border-bottom: 1px solid #FECACA; display: flex; align-items: center; gap: 0.75rem;">
+      <div style="width: 40px; height: 40px; border-radius: 50%; background: #FEE2E2; color: #DC2626; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+        <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"></line><line x1="6" y1="6" x2="18" y2="18"></line></svg>
+      </div>
+      <div>
+        <h4 style="color: #991B1B; font-size: 1.15rem; font-weight: 800; margin: 0;">Confirm Account Deletion</h4>
+        <div style="color: #B91C1C; font-size: 0.8125rem;">Irreversible Action</div>
+      </div>
+    </div>
+
+    <div style="padding: 1.75rem 1.5rem;">
+      <p style="color: var(--text-main); font-size: 0.9375rem; line-height: 1.5; margin-bottom: 1.25rem;">
+        Are you absolutely certain you want to delete your Civic Connects citizen account? All your active tickets, evidence photos, and profile records will be permanently removed.
+      </p>
+
+      <form action="{{ url_for('citizen.profile') }}" method="POST">
+        <input type="hidden" name="action" value="delete_account">
+
+        <div class="form-group" style="margin-bottom: 1rem;">
+          <label class="form-label" style="font-size: 0.85rem;">Enter your current password to confirm: <span class="required">*</span></label>
+          <input type="password" name="confirm_password" class="form-control" placeholder="Current Account Password" required>
+        </div>
+
+        <div class="form-group" style="margin-bottom: 1.5rem;">
+          <label class="form-label" style="font-size: 0.85rem;">Or type <code>DELETE</code> to verify: <span class="required">*</span></label>
+          <input type="text" name="confirm_text" class="form-control" placeholder="DELETE" style="font-family: monospace;">
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 0.75rem;">
+          <button type="button" class="btn btn-secondary" onclick="document.getElementById('deleteConfirmModal').style.display='none';">
+            Cancel &amp; Keep Account
+          </button>
+          <button type="submit" class="btn" style="background: #DC2626; color: #FFFFFF; font-weight: 700;">
+            Yes, Permanently Delete
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+// Client-side Avatar Validation & Instant Preview
+document.addEventListener('DOMContentLoaded', function() {
+  const avatarInput = document.getElementById('avatarInput');
+  const previewImg = document.getElementById('clientAvatarPreview');
+  const heroPreview = document.getElementById('avatarHeroPreview');
+  const placeholderIcon = document.getElementById('avatarPlaceholderIcon');
+  const saveBtn = document.getElementById('saveAvatarBtn');
+  const fileNameDisplay = document.getElementById('avatarFileName');
+  const errorAlert = document.getElementById('avatarErrorAlert');
+
+  if (avatarInput) {
+    avatarInput.addEventListener('change', function(e) {
+      errorAlert.style.display = 'none';
+      errorAlert.textContent = '';
+
+      const file = this.files[0];
+      if (!file) return;
+
+      // 1. Client-side Format Validation
+      const validExtensions = ['image/png', 'image/jpeg', 'image/jpg', 'image/webp'];
+      if (!validExtensions.includes(file.type)) {
+        errorAlert.textContent = 'Invalid format. Please select a PNG, JPG, or WEBP image.';
+        errorAlert.style.display = 'block';
+        avatarInput.value = '';
+        saveBtn.style.display = 'none';
+        return;
+      }
+
+      // 2. Client-side Size Validation (Max 5MB)
+      const maxSize = 5 * 1024 * 1024; // 5MB
+      if (file.size > maxSize) {
+        errorAlert.textContent = 'Selected file is too large (' + (file.size / (1024*1024)).toFixed(2) + 'MB). Maximum allowed is 5MB.';
+        errorAlert.style.display = 'block';
+        avatarInput.value = '';
+        saveBtn.style.display = 'none';
+        return;
+      }
+
+      // 3. Instant Thumbnail Preview
+      const reader = new FileReader();
+      reader.onload = function(evt) {
+        previewImg.src = evt.target.result;
+        previewImg.style.display = 'block';
+        if (heroPreview) {
+          heroPreview.src = evt.target.result;
+        }
+        if (placeholderIcon) {
+          placeholderIcon.style.display = 'none';
+        }
+      };
+      reader.readAsDataURL(file);
+
+      fileNameDisplay.textContent = 'Selected: ' + file.name + ' (' + (file.size / 1024).toFixed(1) + ' KB)';
+      saveBtn.style.display = 'inline-block';
+    });
+  }
+});
+</script>
+{% endblock %}

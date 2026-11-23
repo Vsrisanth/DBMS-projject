@@ -1,0 +1,54 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Manage Users - Civic Connects{% endblock %}
+{% block page_title %}Registered Citizens &amp; Authorities{% endblock %}
+
+{% block portal_content %}
+<div class="panel-card">
+  <div class="panel-header">
+    <h2 class="panel-title">System Accounts Directory ({{ users|length }})</h2>
+  </div>
+
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>User</th>
+          <th>Contact Email</th>
+          <th>Phone</th>
+          <th>Residential Address / Office</th>
+          <th>Role</th>
+          <th>Complaints Logged</th>
+          <th>Member Since</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for u in users %}
+        <tr>
+          <td>
+            <div style="font-weight: 600; color: var(--text-main);">{{ u.name }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">UID: #USR-{{ u.id }}</div>
+          </td>
+          <td>{{ u.email }}</td>
+          <td>{{ u.phone }}</td>
+          <td style="max-width: 220px; font-size: 0.8125rem;">
+            {{ u.address or 'No address provided' }}
+          </td>
+          <td>
+            <span class="badge-status {% if u.role == 'admin' %}status-inprogress{% else %}status-resolved{% endif %}">
+              {{ u.role.capitalize() }}
+            </span>
+          </td>
+          <td>
+            <strong style="color: var(--brand-blue);">{{ u.total_complaints }}</strong> filings
+          </td>
+          <td style="font-size: 0.8125rem; color: var(--text-muted); white-space: nowrap;">
+            {{ u.created_at }}
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+{% endblock %}

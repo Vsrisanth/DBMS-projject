@@ -1,0 +1,370 @@
+<!-- =====================================================================
+     CIVIC CONNECTS - NOTIFICATION BELL COMPONENT
+     Top-Right Corner Alert Bell & Interactive Popover for Citizen & Admin
+     ===================================================================== -->
+
+<div class="civic-notif-wrapper" id="civicNotifWrapper">
+  
+  <!-- Notification Bell Trigger Button -->
+  <button id="civicNotifBellBtn" 
+          type="button" 
+          class="civic-notif-bell-btn" 
+          aria-label="View Notifications" 
+          aria-expanded="false" 
+          title="Notifications">
+    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+      <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+      <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+    </svg>
+
+    <!-- Unread Badge Counter -->
+    {% if notifications and notifications|length > 0 %}
+      <span class="civic-notif-badge" id="civicNotifBadge">{{ notifications|length }}</span>
+    {% else %}
+      <span class="civic-notif-badge" id="civicNotifBadge" style="display: none;">0</span>
+    {% endif %}
+  </button>
+
+  <!-- Interactive Notifications Popover Dropdown -->
+  <div id="civicNotifDropdown" class="civic-notif-dropdown" style="display: none;" role="region" aria-label="Notifications Panel">
+    
+    <!-- Popover Header -->
+    <div class="civic-notif-header">
+      <div style="display: flex; align-items: center; gap: 0.5rem;">
+        <span style="font-weight: 800; font-size: 0.95rem; color: var(--text-main);">Notifications</span>
+        {% if notifications and notifications|length > 0 %}
+          <span class="civic-notif-count-pill" id="civicNotifCountPill">{{ notifications|length }} New</span>
+        {% endif %}
+      </div>
+      <button type="button" id="civicNotifMarkAllReadBtn" class="civic-notif-mark-read-btn">
+        Mark all as read
+      </button>
+    </div>
+
+    <!-- Notifications List -->
+    <div class="civic-notif-body" id="civicNotifBody">
+      {% if notifications and notifications|length > 0 %}
+        <div class="civic-notif-list">
+          {% for n in notifications %}
+            <a href="{{ n.link }}" class="civic-notif-item">
+              <div class="civic-notif-icon-circle 
+                {% if n.status == 'resolved' %}status-resolved-icon
+                {% elif n.status == 'in_progress' %}status-inprogress-icon
+                {% elif n.status == 'rejected' %}status-rejected-icon
+                {% else %}status-pending-icon{% endif %}">
+                {% if n.status == 'resolved' %}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+                {% elif n.status == 'in_progress' %}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+                {% else %}
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                {% endif %}
+              </div>
+              <div style="flex: 1; min-width: 0;">
+                <div class="civic-notif-item-title">{{ n.title }}</div>
+                <div class="civic-notif-item-msg">{{ n.message }}</div>
+                <div class="civic-notif-item-time">{{ n.time }}</div>
+              </div>
+            </a>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="civic-notif-empty">
+          <div class="civic-notif-empty-icon">
+            <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path><polyline points="22 4 12 14.01 9 11.01"></polyline></svg>
+          </div>
+          <div style="font-weight: 700; color: var(--text-main); font-size: 0.9rem;">You're all caught up!</div>
+          <div style="font-size: 0.78rem; color: var(--text-muted); margin-top: 0.2rem;">No pending notifications at this time.</div>
+        </div>
+      {% endif %}
+    </div>
+
+    <!-- Popover Footer -->
+    <div class="civic-notif-footer">
+      {% if current_user and current_user.role == 'citizen' %}
+        <a href="{{ url_for('citizen.my_complaints') }}">View All Complaints &rarr;</a>
+      {% else %}
+        <a href="{{ url_for('admin.complaints') }}">Manage All Complaints &rarr;</a>
+      {% endif %}
+    </div>
+
+  </div>
+</div>
+
+<style>
+/* Notification Bell Styles */
+.civic-notif-wrapper {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+}
+
+.civic-notif-bell-btn {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  color: var(--text-main);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: relative;
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+  box-shadow: var(--shadow-sm);
+}
+
+.civic-notif-bell-btn:hover {
+  background: var(--bg-subtle);
+  border-color: var(--border-strong);
+  color: var(--brand-blue);
+  transform: translateY(-1px);
+}
+
+.civic-notif-bell-btn:hover svg {
+  animation: bellRing 0.5s ease-in-out;
+}
+
+@keyframes bellRing {
+  0% { transform: rotate(0); }
+  20% { transform: rotate(14deg); }
+  40% { transform: rotate(-14deg); }
+  60% { transform: rotate(8deg); }
+  80% { transform: rotate(-8deg); }
+  100% { transform: rotate(0); }
+}
+
+/* Badge Counter */
+.civic-notif-badge {
+  position: absolute;
+  top: -2px;
+  right: -2px;
+  background: #EF4444;
+  color: #FFFFFF;
+  font-size: 0.68rem;
+  font-weight: 800;
+  height: 18px;
+  min-width: 18px;
+  padding: 0 5px;
+  border-radius: 9999px;
+  border: 2px solid #FFFFFF;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  box-shadow: 0 2px 5px rgba(239, 68, 68, 0.4);
+}
+
+/* Dropdown Card */
+.civic-notif-dropdown {
+  position: absolute;
+  top: calc(100% + 10px);
+  right: 0;
+  width: 360px;
+  max-width: calc(100vw - 2rem);
+  background: #FFFFFF;
+  border-radius: 14px;
+  box-shadow: 0 16px 40px rgba(15, 23, 42, 0.16), 0 0 0 1px var(--border-subtle);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 1000;
+  animation: notifPopIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes notifPopIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.97); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+.civic-notif-header {
+  padding: 0.875rem 1.15rem;
+  background: var(--bg-surface);
+  border-bottom: 1px solid var(--border-subtle);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.civic-notif-count-pill {
+  background: #EFF6FF;
+  color: var(--brand-blue);
+  font-size: 0.7rem;
+  font-weight: 700;
+  padding: 0.15rem 0.5rem;
+  border-radius: 9999px;
+  border: 1px solid var(--brand-blue-border);
+}
+
+.civic-notif-mark-read-btn {
+  background: transparent;
+  border: none;
+  color: var(--text-muted);
+  font-size: 0.75rem;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 0;
+  transition: color 0.15s ease;
+}
+
+.civic-notif-mark-read-btn:hover {
+  color: var(--brand-blue);
+  text-decoration: underline;
+}
+
+.civic-notif-body {
+  max-height: 340px;
+  overflow-y: auto;
+  background: #FFFFFF;
+}
+
+.civic-notif-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.civic-notif-item {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.75rem;
+  padding: 0.85rem 1.15rem;
+  border-bottom: 1px solid var(--border-subtle);
+  color: inherit;
+  text-decoration: none;
+  transition: background-color 0.15s ease;
+}
+
+.civic-notif-item:last-child {
+  border-bottom: none;
+}
+
+.civic-notif-item:hover {
+  background-color: var(--bg-canvas);
+}
+
+.civic-notif-icon-circle {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 0.15rem;
+}
+
+.status-resolved-icon { background: #ECFDF5; color: #059669; }
+.status-inprogress-icon { background: #EFF6FF; color: var(--brand-blue); }
+.status-pending-icon { background: #FEF3C7; color: #D97706; }
+.status-rejected-icon { background: #FFF1F2; color: #E11D48; }
+
+.civic-notif-item-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-main);
+  line-height: 1.25;
+  margin-bottom: 0.2rem;
+}
+
+.civic-notif-item-msg {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  line-height: 1.35;
+  margin-bottom: 0.25rem;
+}
+
+.civic-notif-item-time {
+  font-size: 0.7rem;
+  color: var(--text-light);
+  font-family: monospace;
+}
+
+.civic-notif-empty {
+  padding: 2.5rem 1rem;
+  text-align: center;
+}
+
+.civic-notif-empty-icon {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: #ECFDF5;
+  color: #059669;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.5rem;
+}
+
+.civic-notif-footer {
+  padding: 0.7rem 1.15rem;
+  background: var(--bg-canvas);
+  border-top: 1px solid var(--border-subtle);
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 600;
+}
+
+.civic-notif-footer a {
+  color: var(--brand-blue);
+  text-decoration: none;
+}
+
+.civic-notif-footer a:hover {
+  text-decoration: underline;
+}
+</style>
+
+<script>
+// Notification Bell Dropdown Controller
+(function() {
+  const bellBtn = document.getElementById('civicNotifBellBtn');
+  const dropdown = document.getElementById('civicNotifDropdown');
+  const badge = document.getElementById('civicNotifBadge');
+  const markReadBtn = document.getElementById('civicNotifMarkAllReadBtn');
+  const countPill = document.getElementById('civicNotifCountPill');
+
+  if (!bellBtn || !dropdown) return;
+
+  function toggleNotifDropdown() {
+    const isHidden = dropdown.style.display === 'none' || dropdown.style.display === '';
+    dropdown.style.display = isHidden ? 'flex' : 'none';
+    bellBtn.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+  }
+
+  function closeNotifDropdown() {
+    dropdown.style.display = 'none';
+    bellBtn.setAttribute('aria-expanded', 'false');
+  }
+
+  bellBtn.addEventListener('click', function(e) {
+    e.stopPropagation();
+    toggleNotifDropdown();
+  });
+
+  // Close on click outside
+  document.addEventListener('click', function(e) {
+    if (!dropdown.contains(e.target) && !bellBtn.contains(e.target)) {
+      closeNotifDropdown();
+    }
+  });
+
+  // Close on Escape key
+  document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') closeNotifDropdown();
+  });
+
+  // Mark all as read action
+  if (markReadBtn) {
+    markReadBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      if (badge) badge.style.display = 'none';
+      if (countPill) countPill.style.display = 'none';
+      try {
+        localStorage.setItem('civic_notifications_read', Date.now().toString());
+      } catch (err) {}
+    });
+  }
+})();
+</script>

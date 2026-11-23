@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}About Civic Connects - Project Overview{% endblock %}
+
+{% block content %}
+<div style="min-height: 100vh; background-color: var(--bg-canvas); padding: 3rem 1.5rem;">
+  <div style="max-width: 900px; margin: 0 auto;">
+    
+    <div style="margin-bottom: 2rem;">
+      <a href="{{ url_for('index') }}" class="btn btn-secondary btn-sm">&larr; Back to Home</a>
+    </div>
+
+    <div class="panel-card">
+      <div class="panel-header">
+        <h1 style="font-size: 1.5rem; color: var(--text-main);">About Civic Connects</h1>
+      </div>
+      <div class="panel-body" style="font-size: 0.95rem; line-height: 1.7; color: var(--text-main); display: flex; flex-direction: column; gap: 1.5rem;">
+        
+        <div>
+          <h2 style="font-size: 1.25rem; color: var(--brand-blue); margin-bottom: 0.5rem;">Mission &amp; Platform Architecture</h2>
+          <p style="color: var(--text-muted);">
+            <strong>Civic Connects</strong> is an enterprise-grade municipal grievance reporting and tracking web platform designed to bridge citizens and local municipal authorities.
+            Citizens can pinpoint infrastructure hazards (potholes, water leaks, electrical hazards, uncollected solid waste), attach verifiable photographic proof with geolocation coordinates, and monitor the live resolution lifecycle.
+          </p>
+        </div>
+
+        <div>
+          <h2 style="font-size: 1.25rem; color: var(--brand-blue); margin-bottom: 0.5rem;">Technical Implementation</h2>
+          <ul style="margin-left: 1.5rem; color: var(--text-muted);">
+            <li><strong>Backend:</strong> Python 3 with Flask web framework, modular blueprints (<code>auth</code>, <code>citizen</code>, <code>admin</code>, <code>complaints</code>).</li>
+            <li><strong>Database Engine:</strong> MySQL / MariaDB (InnoDB, UTF-8 collation) with connection pooling and localized fallback engine for zero-dependency reliability.</li>
+            <li><strong>Security:</strong> Password hashing via <code>werkzeug.security</code> (scrypt algorithm), session management with HTTP-only cookies, role-based access decorators.</li>
+            <li><strong>File Storage:</strong> Strict MIME-type checking, UUID prefix collision protection in <code>static/uploads/complaints/</code>.</li>
+            <li><strong>Frontend:</strong> Vanilla HTML5, CSS3 Custom Properties (variables), and Vanilla JavaScript without bloated heavy frameworks.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h2 style="font-size: 1.25rem; color: var(--brand-blue); margin-bottom: 0.5rem;">Relational Database Schema (DDL)</h2>
+          <p style="color: var(--text-muted); margin-bottom: 0.5rem;">
+            The relational model utilizes 4 primary tables with foreign key constraints, cascading deletes, and optimized b-tree indices:
+          </p>
+          <ul style="margin-left: 1.5rem; color: var(--text-muted);">
+            <li><code>users</code>: Manages credentials, roles (<code>'citizen'</code>, <code>'admin'</code>), and contact addresses.</li>
+            <li><code>departments</code>: Municipal boards (Roads, Water, Electricity, Sanitation, Drainage, Streetlights).</li>
+            <li><code>complaints</code>: Grievance tickets with unique <code>ticket_number</code> (e.g. <code>#CC-8421</code>), GPS coordinates, status ENUM, and remarks.</li>
+            <li><code>complaint_logs</code>: Immutable audit history tracking timestamped status changes and authority notes.</li>
+          </ul>
+        </div>
+
+        <div>
+          <h2 style="font-size: 1.25rem; color: var(--brand-blue); margin-bottom: 0.5rem;">Default Demo Credentials</h2>
+          <div style="background: var(--bg-canvas); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); font-family: monospace; font-size: 0.875rem;">
+            <div><strong>Municipal Authority:</strong> admin@civicconnects.gov &bull; Password: <code>Admin@123</code></div>
+            <div style="margin-top: 0.4rem;"><strong>Resident Citizen:</strong> citizen@example.com &bull; Password: <code>Citizen@123</code></div>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>
+{% endblock %}

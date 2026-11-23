@@ -1,0 +1,125 @@
+{% extends "citizen/layout.html" %}
+
+{% block title %}Citizen Profile - Civic Connects{% endblock %}
+{% block page_title %}Account Profile & Settings{% endblock %}
+
+{% block portal_content %}
+<div style="max-width: 800px; margin: 0 auto; display: flex; flex-direction: column; gap: 2rem;">
+
+  <!-- Personal Information Card -->
+  <div class="panel-card" style="margin-bottom: 0;">
+    <div class="panel-header">
+      <div>
+        <h2 class="panel-title">Personal Information</h2>
+        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.2rem;">
+          Keep your contact information updated so municipal officers can reach you regarding reported issues.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel-body">
+      <form action="{{ url_for('citizen.profile') }}" method="POST">
+        <input type="hidden" name="action" value="update_info">
+
+        <div class="form-group">
+          <label for="userName" class="form-label">Full Name <span class="required">*</span></label>
+          <input type="text" 
+                 id="userName" 
+                 name="name" 
+                 class="form-control" 
+                 value="{{ user.name }}" 
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="userEmail" class="form-label">Email Address</label>
+          <input type="email" 
+                 id="userEmail" 
+                 class="form-control" 
+                 value="{{ user.email }}" 
+                 disabled 
+                 style="background-color: var(--bg-subtle); cursor: not-allowed;">
+          <span class="form-hint">Email address is tied to your account identity and cannot be edited.</span>
+        </div>
+
+        <div class="form-group">
+          <label for="userPhone" class="form-label">Mobile Phone Number <span class="required">*</span></label>
+          <input type="tel" 
+                 id="userPhone" 
+                 name="phone" 
+                 class="form-control" 
+                 value="{{ user.phone }}" 
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="userAddress" class="form-label">Default Residential Address / Ward</label>
+          <textarea id="userAddress" 
+                    name="address" 
+                    rows="2" 
+                    class="form-control">{{ user.address or '' }}</textarea>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button type="submit" class="btn btn-primary">
+            Save Profile Changes
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+  <!-- Security & Password Change Card -->
+  <div class="panel-card" style="margin-bottom: 0;">
+    <div class="panel-header">
+      <div>
+        <h2 class="panel-title">Security & Password</h2>
+        <p style="font-size: 0.8125rem; color: var(--text-muted); margin-top: 0.2rem;">
+          Ensure your account is protected with a secure password.
+        </p>
+      </div>
+    </div>
+
+    <div class="panel-body">
+      <form action="{{ url_for('citizen.profile') }}" method="POST">
+        <input type="hidden" name="action" value="change_password">
+
+        <div class="form-group">
+          <label for="currPwd" class="form-label">Current Password <span class="required">*</span></label>
+          <input type="password" 
+                 id="currPwd" 
+                 name="current_password" 
+                 class="form-control" 
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="newPwd" class="form-label">New Password <span class="required">*</span></label>
+          <input type="password" 
+                 id="newPwd" 
+                 name="new_password" 
+                 class="form-control" 
+                 placeholder="At least 6 characters" 
+                 required>
+        </div>
+
+        <div class="form-group">
+          <label for="confirmNewPwd" class="form-label">Confirm New Password <span class="required">*</span></label>
+          <input type="password" 
+                 id="confirmNewPwd" 
+                 name="confirm_password" 
+                 class="form-control" 
+                 required>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+          <button type="submit" class="btn btn-secondary">
+            Update Password
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+
+</div>
+{% endblock %}

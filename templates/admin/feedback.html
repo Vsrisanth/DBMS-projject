@@ -1,0 +1,252 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Anonymous Feedback & Bug Reports - Civic Connects Admin{% endblock %}
+{% block page_title %}Anonymous Feedback &amp; Bug Reports{% endblock %}
+
+{% block portal_content %}
+<!-- Strict Anonymity Banner -->
+<div style="background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%); border-radius: var(--radius-lg); padding: 1.5rem 1.75rem; color: #FFFFFF; display: flex; align-items: center; justify-content: space-between; margin-bottom: 2rem; border-left: 5px solid #10B981; flex-wrap: wrap; gap: 1rem;">
+  <div style="display: flex; align-items: center; gap: 1rem;">
+    <div style="width: 44px; height: 44px; border-radius: 50%; background: rgba(16, 185, 129, 0.2); display: flex; align-items: center; justify-content: center; color: #10B981; flex-shrink: 0;">
+      <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+    </div>
+    <div>
+      <h3 style="color: #FFFFFF; font-size: 1.15rem; margin-bottom: 0.2rem; font-weight: 700;">Zero-Identity Anonymous Ingestion Protocol</h3>
+      <p style="color: #94A3B8; font-size: 0.85rem; margin: 0; max-width: 680px;">
+        All submissions on this board are strictly stripped of citizen user IDs, names, emails, and IP network metadata. This enables authentic feedback and safe vulnerability reporting.
+      </p>
+    </div>
+  </div>
+  <span class="badge-status status-resolved" style="background: rgba(16, 185, 129, 0.2); color: #34D399; font-size: 0.75rem; text-transform: uppercase; font-weight: 700;">
+    Identity Stripped &bull; Safe Channel
+  </span>
+</div>
+
+<!-- Metrics Overview Grid -->
+<div class="metrics-grid" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); margin-bottom: 2rem;">
+  <div class="kpi-card kpi-total">
+    <div class="kpi-header">
+      <span class="kpi-label">Total Reports</span>
+      <div class="kpi-icon-pill">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path></svg>
+      </div>
+    </div>
+    <div class="kpi-value">{{ counts.total }}</div>
+    <div class="kpi-subtext">All time submissions</div>
+  </div>
+
+  <div class="kpi-card kpi-pending">
+    <div class="kpi-header">
+      <span class="kpi-label">Unread / Triage</span>
+      <div class="kpi-icon-pill">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      </div>
+    </div>
+    <div class="kpi-value">{{ counts.unread }}</div>
+    <div class="kpi-subtext">Awaiting administrative review</div>
+  </div>
+
+  <div class="kpi-card kpi-inprogress">
+    <div class="kpi-header">
+      <span class="kpi-label">Reviewed</span>
+      <div class="kpi-icon-pill">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="20 6 9 17 4 12"></polyline></svg>
+      </div>
+    </div>
+    <div class="kpi-value">{{ counts.reviewed }}</div>
+    <div class="kpi-subtext">Assessed by municipal team</div>
+  </div>
+
+  <div class="kpi-card kpi-resolved">
+    <div class="kpi-header">
+      <span class="kpi-label">Archived</span>
+      <div class="kpi-icon-pill">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="21 8 21 21 3 21 3 8"></polyline><rect x="1" y="3" width="22" height="5"></rect><line x1="10" y1="12" x2="14" y2="12"></line></svg>
+      </div>
+    </div>
+    <div class="kpi-value">{{ counts.archived }}</div>
+    <div class="kpi-subtext">Addressed &amp; closed</div>
+  </div>
+</div>
+
+<!-- Filters Toolbar -->
+<div class="panel-card" style="margin-bottom: 2rem;">
+  <div class="panel-body" style="padding: 1.25rem 1.5rem;">
+    <form method="GET" action="{{ url_for('admin.feedback') }}" style="display: flex; gap: 1rem; flex-wrap: wrap; align-items: flex-end;">
+      
+      <div style="flex: 1; min-width: 220px;">
+        <label class="form-label" style="font-size: 0.75rem;">Search Content</label>
+        <input type="text" name="q" class="form-control" placeholder="Search subject or description..." value="{{ search_query }}">
+      </div>
+
+      <div style="min-width: 150px;">
+        <label class="form-label" style="font-size: 0.75rem;">Status</label>
+        <select name="status" class="form-control">
+          <option value="all" {% if current_status == 'all' %}selected{% endif %}>All Statuses</option>
+          <option value="unread" {% if current_status == 'unread' %}selected{% endif %}>Unread</option>
+          <option value="reviewed" {% if current_status == 'reviewed' %}selected{% endif %}>Reviewed</option>
+          <option value="archived" {% if current_status == 'archived' %}selected{% endif %}>Archived</option>
+        </select>
+      </div>
+
+      <div style="min-width: 170px;">
+        <label class="form-label" style="font-size: 0.75rem;">Category Type</label>
+        <select name="type" class="form-control">
+          <option value="all" {% if current_type == 'all' %}selected{% endif %}>All Types</option>
+          <option value="bug_report" {% if current_type == 'bug_report' %}selected{% endif %}>Bug Reports</option>
+          <option value="feature_request" {% if current_type == 'feature_request' %}selected{% endif %}>Feature Requests</option>
+          <option value="service_feedback" {% if current_type == 'service_feedback' %}selected{% endif %}>Service Feedback</option>
+          <option value="general" {% if current_type == 'general' %}selected{% endif %}>General</option>
+        </select>
+      </div>
+
+      <div style="min-width: 140px;">
+        <label class="form-label" style="font-size: 0.75rem;">Severity</label>
+        <select name="severity" class="form-control">
+          <option value="all" {% if current_severity == 'all' %}selected{% endif %}>All Severities</option>
+          <option value="low" {% if current_severity == 'low' %}selected{% endif %}>Low</option>
+          <option value="medium" {% if current_severity == 'medium' %}selected{% endif %}>Medium</option>
+          <option value="high" {% if current_severity == 'high' %}selected{% endif %}>High</option>
+          <option value="critical" {% if current_severity == 'critical' %}selected{% endif %}>Critical</option>
+        </select>
+      </div>
+
+      <div style="display: flex; gap: 0.5rem;">
+        <button type="submit" class="btn btn-primary" style="padding: 0.65rem 1.25rem;">Filter</button>
+        <a href="{{ url_for('admin.feedback') }}" class="btn btn-secondary" style="padding: 0.65rem 1rem;">Reset</a>
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- Anonymous Reports Feed -->
+<div class="panel-card">
+  <div class="panel-header">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <h2 class="panel-title">Anonymous Submissions Feed</h2>
+      <span class="badge-status status-resolved" style="font-size: 0.75rem;">{{ feedbacks|length }} Records</span>
+    </div>
+  </div>
+
+  <div class="panel-body" style="padding: 1.5rem;">
+    {% if feedbacks %}
+      <div style="display: flex; flex-direction: column; gap: 1.25rem;">
+        {% for item in feedbacks %}
+          <div style="background: var(--bg-canvas); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 1.5rem; transition: var(--transition-fast);">
+            
+            <!-- Item Header -->
+            <div style="display: flex; justify-content: space-between; align-items: flex-start; flex-wrap: wrap; gap: 0.75rem; margin-bottom: 0.75rem;">
+              <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+                
+                <!-- Guaranteed Anonymous Badge -->
+                <span style="display: inline-flex; align-items: center; gap: 0.35rem; background: #0F172A; color: #F8FAFC; padding: 0.25rem 0.65rem; border-radius: var(--radius-pill); font-size: 0.75rem; font-weight: 700;">
+                  <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="#10B981" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                  Anonymous Citizen #{{ item.id }}
+                </span>
+
+                <!-- Type Badge -->
+                <span class="badge-category" style="font-size: 0.75rem;">
+                  {{ item.feedback_type.replace('_', ' ').title() }}
+                </span>
+
+                <!-- Severity Badge -->
+                <span style="font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.6rem; border-radius: var(--radius-pill); 
+                  {% if item.severity == 'critical' %}background: #FFE4E6; color: #BE123C; border: 1px solid #FDA4AF;
+                  {% elif item.severity == 'high' %}background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA;
+                  {% elif item.severity == 'low' %}background: #F1F5F9; color: #475569; border: 1px solid #CBD5E1;
+                  {% else %}background: #FEF3C7; color: #D97706; border: 1px solid #FDE68A;{% endif %}">
+                  {{ item.severity|upper }}
+                </span>
+
+                <!-- Status Badge -->
+                <span class="badge-status status-{{ 'pending' if item.status == 'unread' else ('inprogress' if item.status == 'reviewed' else 'resolved') }}">
+                  {{ item.status|title }}
+                </span>
+
+              </div>
+
+              <!-- Timestamp -->
+              <span style="font-size: 0.8125rem; color: var(--text-muted); font-family: monospace;">
+                Logged: {{ item.created_at }}
+              </span>
+            </div>
+
+            <!-- Subject & Body -->
+            <h3 style="font-size: 1.15rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.5rem;">
+              {{ item.subject }}
+            </h3>
+            <p style="color: var(--text-main); font-size: 0.95rem; line-height: 1.6; white-space: pre-wrap; margin-bottom: 1rem;">{{ item.message }}</p>
+
+            <!-- Admin Internal Notes if any -->
+            {% if item.admin_notes %}
+              <div style="background: #EFF6FF; border-left: 3px solid var(--brand-blue); padding: 0.75rem 1rem; border-radius: 0 var(--radius-sm) var(--radius-sm) 0; margin-bottom: 1rem; font-size: 0.875rem;">
+                <strong style="color: var(--brand-blue);">Administrative Follow-up Note:</strong>
+                <div style="color: var(--text-main); margin-top: 0.2rem;">{{ item.admin_notes }}</div>
+              </div>
+            {% endif %}
+
+            <!-- Admin Actions Form -->
+            <div style="padding-top: 1rem; border-top: 1px solid var(--border-subtle); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+              
+              <!-- Quick Status Buttons -->
+              <div style="display: flex; gap: 0.5rem;">
+                {% if item.status != 'reviewed' %}
+                  <form action="{{ url_for('admin.update_feedback_status', feedback_id=item.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="status" value="reviewed">
+                    <button type="submit" class="btn btn-secondary btn-sm" style="color: var(--brand-blue); border-color: var(--brand-blue-border);">
+                      &check; Mark as Reviewed
+                    </button>
+                  </form>
+                {% endif %}
+
+                {% if item.status != 'archived' %}
+                  <form action="{{ url_for('admin.update_feedback_status', feedback_id=item.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="status" value="archived">
+                    <button type="submit" class="btn btn-secondary btn-sm" style="color: #64748B;">
+                      &boxbox; Archive
+                    </button>
+                  </form>
+                {% endif %}
+
+                {% if item.status != 'unread' %}
+                  <form action="{{ url_for('admin.update_feedback_status', feedback_id=item.id) }}" method="POST" style="display: inline;">
+                    <input type="hidden" name="status" value="unread">
+                    <button type="submit" class="btn btn-secondary btn-sm">
+                      Reopen Unread
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
+
+              <!-- Note Modal Trigger or Mini Form -->
+              <details style="font-size: 0.8125rem;">
+                <summary style="cursor: pointer; color: var(--brand-blue); font-weight: 600;">
+                  + Add / Edit Internal Resolution Note
+                </summary>
+                <form action="{{ url_for('admin.update_feedback_status', feedback_id=item.id) }}" method="POST" style="margin-top: 0.5rem; display: flex; gap: 0.5rem; min-width: 320px;">
+                  <input type="hidden" name="status" value="{{ item.status }}">
+                  <input type="text" name="admin_notes" class="form-control" placeholder="E.g. Dispatched to Web engineering..." value="{{ item.admin_notes or '' }}" style="font-size: 0.8125rem;" required>
+                  <button type="submit" class="btn btn-primary btn-sm">Save</button>
+                </form>
+              </details>
+
+            </div>
+
+          </div>
+        {% endfor %}
+      </div>
+    {% else %}
+      <div style="text-align: center; padding: 3rem 1.5rem;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="1.5" style="margin-bottom: 0.75rem;">
+          <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+        </svg>
+        <h3 style="font-size: 1.15rem; color: var(--text-main); margin-bottom: 0.35rem;">No Feedback Matches Filter</h3>
+        <p style="font-size: 0.875rem; color: var(--text-muted);">
+          No anonymous submissions currently fit the selected status, category, or search criteria.
+        </p>
+      </div>
+    {% endif %}
+  </div>
+</div>
+{% endblock %}

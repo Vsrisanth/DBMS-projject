@@ -1,0 +1,30 @@
+# Environment files
+.env
+.env.*
+.env.example
+
+# Python cache & bytecode
+__pycache__/
+*.pyc
+*.py[cod]
+*$py.class
+
+# Virtual environments
+venv/
+.venv/
+env/
+ENV/
+
+# Local SQLite databases
+civic_connects.db
+*.sqlite
+*.sqlite3
+
+# Duplicate directory from archive extraction
+DBMS projject/
+
+# User uploaded media (ephemeral local storage)
+static/uploads/complaints/*
+!static/uploads/complaints/.gitkeep
+static/uploads/avatars/*
+!static/uploads/avatars/.gitkeep

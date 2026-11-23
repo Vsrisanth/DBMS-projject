@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+
+{% block title %}404 - Page Not Found - Civic Connects{% endblock %}
+
+{% block content %}
+<div style="min-height: 80vh; display: flex; align-items: center; justify-content: center; padding: 2rem; text-align: center;">
+  <div class="panel-card" style="max-width: 480px; padding: 3rem 2rem; margin: 0 auto; box-shadow: var(--shadow-lg);">
+    <div style="width: 64px; height: 64px; border-radius: 50%; background: #EFF6FF; color: var(--brand-blue); display: inline-flex; align-items: center; justify-content: center; margin-bottom: 1.25rem;">
+      <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"></circle>
+        <line x1="12" y1="8" x2="12" y2="12"></line>
+        <line x1="12" y1="16" x2="12.01" y2="16"></line>
+      </svg>
+    </div>
+    <h1 style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.5rem; line-height: 1.1;">404</h1>
+    <h2 style="font-size: 1.25rem; font-weight: 700; color: var(--text-main); margin-bottom: 0.75rem;">Page Not Found</h2>
+    <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;">
+      The requested page could not be located. If you are looking to track a complaint ticket, please enter your ticket ID in the tracker below.
+    </p>
+    <div style="display: flex; gap: 0.75rem; justify-content: center; flex-wrap: wrap;">
+      <a href="{{ url_for('complaints.track') }}" class="btn btn-primary" style="font-weight: 600;">
+        Track Grievance Ticket
+      </a>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary">
+        Return Home
+      </a>
+    </div>
+  </div>
+</div>
+{% endblock %}

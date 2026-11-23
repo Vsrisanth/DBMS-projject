@@ -1,0 +1,152 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Manage Complaints - Civic Connects{% endblock %}
+{% block page_title %}Complaints Management Table{% endblock %}
+
+{% block portal_content %}
+<!-- Search & Filter Controls -->
+<div class="panel-card" style="margin-bottom: 1.5rem;">
+  <div class="panel-body" style="padding: 1.25rem 1.5rem;">
+    <form action="{{ url_for('admin.complaints') }}" method="GET" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)) auto; gap: 1rem; align-items: flex-end;">
+      
+      <!-- Filter: Status -->
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" style="font-size: 0.8125rem;">Status</label>
+        <select name="status" class="form-select">
+          <option value="all">All Statuses</option>
+          <option value="pending" {% if current_status == 'pending' %}selected{% endif %}>Pending</option>
+          <option value="in_progress" {% if current_status == 'in_progress' %}selected{% endif %}>In Progress</option>
+          <option value="resolved" {% if current_status == 'resolved' %}selected{% endif %}>Resolved</option>
+          <option value="rejected" {% if current_status == 'rejected' %}selected{% endif %}>Rejected</option>
+        </select>
+      </div>
+
+      <!-- Filter: Category -->
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" style="font-size: 0.8125rem;">Category</label>
+        <select name="category" class="form-select">
+          <option value="all">All Categories</option>
+          {% for cat in categories %}
+            <option value="{{ cat }}" {% if current_category == cat %}selected{% endif %}>{{ cat }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Filter: Department -->
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" style="font-size: 0.8125rem;">Department</label>
+        <select name="department" class="form-select">
+          <option value="all">All Departments</option>
+          <option value="unassigned" {% if current_department == 'unassigned' %}selected{% endif %}>Unassigned</option>
+          {% for dept in departments %}
+            <option value="{{ dept.id }}" {% if current_department == dept.id|string %}selected{% endif %}>{{ dept.name }}</option>
+          {% endfor %}
+        </select>
+      </div>
+
+      <!-- Search Input -->
+      <div class="form-group" style="margin-bottom: 0;">
+        <label class="form-label" style="font-size: 0.8125rem;">Keyword / Ticket / Complainant</label>
+        <input type="text" name="q" class="form-control" placeholder="Search..." value="{{ search_query }}">
+      </div>
+
+      <!-- Submit Filter -->
+      <div style="display: flex; gap: 0.5rem;">
+        <button type="submit" class="btn btn-primary" style="padding: 0.6875rem 1.25rem;">
+          Filter
+        </button>
+        {% if current_status != 'all' or current_category != 'all' or current_department != 'all' or search_query %}
+          <a href="{{ url_for('admin.complaints') }}" class="btn btn-secondary" style="padding: 0.6875rem 1rem;" title="Reset filters">
+            &times;
+          </a>
+        {% endif %}
+      </div>
+
+    </form>
+  </div>
+</div>
+
+<!-- Complaints Grid -->
+<div class="panel-card">
+  <div class="panel-header">
+    <div style="display: flex; align-items: center; gap: 0.75rem;">
+      <h2 class="panel-title">All Complaints ({{ complaints|length }})</h2>
+    </div>
+  </div>
+
+  <div class="table-responsive">
+    {% if complaints %}
+      <table class="custom-table">
+        <thead>
+          <tr>
+            <th>Ticket ID</th>
+            <th>Complainant Details</th>
+            <th>Category &amp; Issue</th>
+            <th>Locality / Ward</th>
+            <th>Assigned Board</th>
+            <th>Status</th>
+            <th>Submitted</th>
+            <th style="text-align: right;">Action</th>
+          </tr>
+        </thead>
+        <tbody>
+          {% for c in complaints %}
+          <tr>
+            <td>
+              <span class="ticket-pill">{{ c.ticket_number }}</span>
+            </td>
+            <td>
+              <div style="font-weight: 600; color: var(--text-main);">{{ c.citizen_name }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-muted);">{{ c.citizen_phone }}</div>
+              <div style="font-size: 0.75rem; color: var(--text-light);">{{ c.citizen_email }}</div>
+            </td>
+            <td>
+              <span class="badge-category">{{ c.category }}</span>
+              <div style="font-weight: 600; color: var(--text-main); margin-top: 0.2rem; max-width: 240px;">
+                {{ c.title }}
+              </div>
+            </td>
+            <td style="max-width: 180px; font-size: 0.8125rem;">
+              {{ c.location }}
+            </td>
+            <td>
+              {% if c.department_name %}
+                <span style="font-size: 0.8125rem; font-weight: 500;">{{ c.department_name }}</span>
+              {% else %}
+                <span style="font-size: 0.75rem; color: #DC2626; font-weight: 600;">Unassigned</span>
+              {% endif %}
+            </td>
+            <td>
+              <span class="badge-status status-{{ c.status }}">{{ c.status.replace('_', ' ') }}</span>
+            </td>
+            <td style="font-size: 0.8125rem; color: var(--text-muted); white-space: nowrap;">
+              {{ c.created_at }}
+            </td>
+            <td style="text-align: right;">
+              <button type="button" class="btn btn-primary btn-sm" onclick="openComplaintModal({{ c.id }});">
+                Manage
+              </button>
+            </td>
+          </tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    {% else %}
+      <div style="text-align: center; padding: 3rem 1.5rem;">
+        <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="1.5" style="margin-bottom: 0.75rem;">
+          <circle cx="11" cy="11" r="8"></circle>
+          <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+        </svg>
+        <p style="font-weight: 600; color: var(--text-main);">No complaints match the specified criteria</p>
+        <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Try resetting filters or adjusting search parameters.
+        </p>
+        <a href="{{ url_for('admin.complaints') }}" class="btn btn-secondary btn-sm">Reset Filters</a>
+      </div>
+    {% endif %}
+  </div>
+</div>
+
+<!-- Action / Resolution Modal Component -->
+{% include "components/complaint_action_modal.html" %}
+{% endblock %}

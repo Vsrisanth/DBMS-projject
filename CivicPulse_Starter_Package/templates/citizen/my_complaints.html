@@ -1,0 +1,213 @@
+{% extends "citizen/layout.html" %}
+
+{% block title %}My Complaints - Civic Connects{% endblock %}
+{% block page_title %}My Registered Complaints{% endblock %}
+
+{% block portal_content %}
+<!-- Filter & Search Toolbar -->
+<div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+  
+  <!-- Status Pills Tabs -->
+  <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
+    <a href="{{ url_for('citizen.my_complaints', status='all', q=search_query) }}" 
+       class="btn btn-sm {% if current_status == 'all' %}btn-primary{% else %}btn-secondary{% endif %}">
+      All ({{ complaints|length if current_status == 'all' else 'All' }})
+    </a>
+    <a href="{{ url_for('citizen.my_complaints', status='pending', q=search_query) }}" 
+       class="btn btn-sm {% if current_status == 'pending' %}btn-primary{% else %}btn-secondary{% endif %}">
+      Pending
+    </a>
+    <a href="{{ url_for('citizen.my_complaints', status='in_progress', q=search_query) }}" 
+       class="btn btn-sm {% if current_status == 'in_progress' %}btn-primary{% else %}btn-secondary{% endif %}">
+      In Progress
+    </a>
+    <a href="{{ url_for('citizen.my_complaints', status='resolved', q=search_query) }}" 
+       class="btn btn-sm {% if current_status == 'resolved' %}btn-primary{% else %}btn-secondary{% endif %}">
+      Resolved
+    </a>
+    <a href="{{ url_for('citizen.my_complaints', status='rejected', q=search_query) }}" 
+       class="btn btn-sm {% if current_status == 'rejected' %}btn-primary{% else %}btn-secondary{% endif %}">
+      Rejected
+    </a>
+  </div>
+
+  <!-- Search Bar -->
+  <form action="{{ url_for('citizen.my_complaints') }}" method="GET" style="display: flex; gap: 0.5rem; max-width: 320px; width: 100%;">
+    <input type="hidden" name="status" value="{{ current_status }}">
+    <input type="text" 
+           name="q" 
+           class="form-control" 
+           placeholder="Search by ticket or keyword..." 
+           value="{{ search_query }}">
+    <button type="submit" class="btn btn-secondary">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="11" cy="11" r="8"></circle>
+        <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+      </svg>
+    </button>
+  </form>
+
+</div>
+
+<!-- Complaints Stream -->
+{% if complaints %}
+  <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+    {% for c in complaints %}
+      <div class="panel-card" style="margin-bottom: 0;">
+        <div class="panel-header" style="background: var(--bg-subtle);">
+          <div style="display: flex; align-items: center; gap: 0.75rem; flex-wrap: wrap;">
+            <span class="ticket-pill">{{ c.ticket_number }}</span>
+            <span class="badge-category">{{ c.category }}</span>
+            <span class="badge-status status-{{ c.status }}">{{ c.status.replace('_', ' ') }}</span>
+          </div>
+          <div style="font-size: 0.8125rem; color: var(--text-muted);">
+            Filed on {{ c.created_at }}
+          </div>
+        </div>
+
+        <div class="panel-body">
+          <div style="display: flex; justify-content: space-between; align-items: flex-start; gap: 1.5rem; flex-wrap: wrap;">
+            <div style="flex: 1; min-width: 280px;">
+              <h3 style="font-size: 1.15rem; margin-bottom: 0.5rem; color: var(--text-main);">{{ c.title }}</h3>
+              <p style="color: var(--text-muted); margin-bottom: 1rem; font-size: 0.9375rem; line-height: 1.6;">
+                {{ c.description }}
+              </p>
+
+              <!-- Location & Assigned Department -->
+              <div style="display: flex; gap: 1.5rem; font-size: 0.8125rem; color: var(--text-muted); flex-wrap: wrap; margin-bottom: 1rem;">
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
+                    <circle cx="12" cy="10" r="3"></circle>
+                  </svg>
+                  <span><strong>Location:</strong> {{ c.location }}</span>
+                </div>
+                <div style="display: flex; align-items: center; gap: 0.4rem;">
+                  <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect>
+                    <path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path>
+                  </svg>
+                  <span><strong>Assigned Department:</strong> {{ c.department_name or 'Pending Routing' }}</span>
+                </div>
+              </div>
+
+              <!-- Official Remarks Box -->
+              {% if c.admin_remarks %}
+                <div style="background: var(--brand-blue-light); border-left: 4px solid var(--brand-blue); padding: 0.75rem 1rem; border-radius: 0 var(--radius-md) var(--radius-md) 0; font-size: 0.875rem;">
+                  <strong style="color: var(--brand-blue); display: block; margin-bottom: 0.2rem;">Official Municipal Remarks:</strong>
+                  <span style="color: var(--text-main);">{{ c.admin_remarks }}</span>
+                </div>
+              {% endif %}
+            </div>
+
+            <!-- Uploaded Image Thumbnail if exists -->
+            {% if c.image_url %}
+              <div style="flex-shrink: 0;">
+                <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); margin-bottom: 0.35rem; text-transform: uppercase;">
+                  Uploaded Evidence
+                </div>
+                <a href="{{ url_for('static', filename='uploads/complaints/' + c.image_url) }}" target="_blank">
+                  <img src="{{ url_for('static', filename='uploads/complaints/' + c.image_url) }}" 
+                       alt="Evidence" 
+                       style="width: 140px; height: 100px; object-fit: cover; border-radius: var(--radius-md); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-sm); cursor: pointer;">
+                </a>
+              </div>
+            {% endif %}
+          </div>
+
+          <!-- Dynamic 4-Step Status Timeline -->
+          <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--border-subtle);">
+            <div style="font-size: 0.75rem; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.5rem;">
+              Milestone Progression
+            </div>
+
+            <div class="timeline-stepper">
+              <!-- Step 1: Submitted -->
+              <div class="timeline-step completed">
+                <div class="timeline-bullet">
+                  <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                    <polyline points="20 6 9 17 4 12"></polyline>
+                  </svg>
+                </div>
+                <div class="timeline-step-label">Submitted</div>
+              </div>
+
+              <!-- Step 2: Under Review -->
+              <div class="timeline-step {% if c.status in ['in_progress', 'resolved', 'rejected'] %}completed{% elif c.status == 'pending' %}active{% endif %}">
+                <div class="timeline-bullet">
+                  {% if c.status in ['in_progress', 'resolved', 'rejected'] %}
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  {% else %}2{% endif %}
+                </div>
+                <div class="timeline-step-label">Under Review</div>
+              </div>
+
+              <!-- Step 3: In Progress -->
+              <div class="timeline-step {% if c.status == 'resolved' %}completed{% elif c.status == 'in_progress' %}active{% endif %}">
+                <div class="timeline-bullet">
+                  {% if c.status == 'resolved' %}
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                      <polyline points="20 6 9 17 4 12"></polyline>
+                    </svg>
+                  {% else %}3{% endif %}
+                </div>
+                <div class="timeline-step-label">In Progress</div>
+              </div>
+
+              <!-- Step 4: Resolved or Rejected -->
+              {% if c.status == 'rejected' %}
+                <div class="timeline-step rejected">
+                  <div class="timeline-bullet">&times;</div>
+                  <div class="timeline-step-label">Rejected</div>
+                </div>
+              {% else %}
+                <div class="timeline-step {% if c.status == 'resolved' %}completed{% endif %}">
+                  <div class="timeline-bullet">
+                    {% if c.status == 'resolved' %}
+                      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3">
+                        <polyline points="20 6 9 17 4 12"></polyline>
+                      </svg>
+                    {% else %}4{% endif %}
+                  </div>
+                  <div class="timeline-step-label">Resolved</div>
+                </div>
+              {% endif %}
+            </div>
+          </div>
+
+          <div style="display: flex; justify-content: flex-end; margin-top: 1rem;">
+            <a href="{{ url_for('citizen.complaint_detail', ticket_number=c.ticket_number) }}" class="btn btn-secondary btn-sm">
+              View Detailed Ticket History &rarr;
+            </a>
+          </div>
+
+        </div>
+      </div>
+    {% endfor %}
+  </div>
+{% else %}
+  <div class="panel-card" style="text-align: center; padding: 3.5rem 1.5rem;">
+    <svg width="52" height="52" viewBox="0 0 24 24" fill="none" stroke="var(--text-light)" stroke-width="1.5" style="margin-bottom: 1rem;">
+      <circle cx="11" cy="11" r="8"></circle>
+      <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+    </svg>
+    <h3 style="color: var(--text-main); margin-bottom: 0.5rem;">No matching complaints found</h3>
+    <p style="color: var(--text-muted); max-width: 440px; margin: 0 auto 1.5rem auto;">
+      {% if search_query or current_status != 'all' %}
+        Try adjusting your filter or search query to find your complaint.
+      {% else %}
+        You haven't submitted any complaints yet. Need assistance with a civic issue?
+      {% endif %}
+    </p>
+    <div style="display: flex; justify-content: center; gap: 0.75rem;">
+      {% if search_query or current_status != 'all' %}
+        <a href="{{ url_for('citizen.my_complaints') }}" class="btn btn-secondary">Clear Filters</a>
+      {% endif %}
+      <a href="{{ url_for('citizen.report_issue') }}" class="btn btn-primary">Report An Issue</a>
+    </div>
+  </div>
+{% endif %}
+
+{% endblock %}

@@ -1,0 +1,270 @@
+{% extends "admin/layout.html" %}
+
+{% block title %}Admin Oversight Dashboard - Civic Connects{% endblock %}
+{% block page_title %}Municipal Grievance Command Center{% endblock %}
+
+{% block portal_content %}
+<!-- Analytics & Statistics Cards -->
+<div class="metrics-grid">
+  <div class="kpi-card kpi-total">
+    <div class="kpi-header">
+      <span class="kpi-label">Total Complaints</span>
+      <div class="kpi-icon-pill">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+          <polyline points="14 2 14 8 20 8"></polyline>
+        </svg>
+      </div>
+    </div>
+    <div class="kpi-value">{{ stats.total }}</div>
+    <div class="kpi-subtext">Cumulative citizen filings</div>
+  </div>
+
+  <div class="kpi-card kpi-pending">
+    <div class="kpi-header">
+      <span class="kpi-label">Open / Pending</span>
+      <div class="kpi-icon-pill">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <circle cx="12" cy="12" r="10"></circle>
+          <line x1="12" y1="8" x2="12" y2="12"></line>
+          <line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+      </div>
+    </div>
+    <div class="kpi-value">{{ stats.pending }}</div>
+    <div class="kpi-subtext">Requires immediate triage</div>
+  </div>
+
+  <div class="kpi-card kpi-inprogress">
+    <div class="kpi-header">
+      <span class="kpi-label">In Progress</span>
+      <div class="kpi-icon-pill">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <polyline points="23 4 23 10 17 10"></polyline>
+          <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+        </svg>
+      </div>
+    </div>
+    <div class="kpi-value">{{ stats.in_progress }}</div>
+    <div class="kpi-subtext">Assigned & crews active</div>
+  </div>
+
+  <div class="kpi-card kpi-resolved">
+    <div class="kpi-header">
+      <span class="kpi-label">Resolved</span>
+      <div class="kpi-icon-pill">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"></path>
+          <polyline points="22 4 12 14.01 9 11.01"></polyline>
+        </svg>
+      </div>
+    </div>
+    <div class="kpi-value">{{ stats.resolved }}</div>
+    <div class="kpi-subtext">{{ stats.resolution_rate }}% resolution rate</div>
+  </div>
+</div>
+
+<!-- Category Breakdown and Quick Statistics -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 1.5rem; margin-bottom: 2rem; align-items: start;">
+  
+  <!-- Category Breakdown Progress Bars -->
+  <div class="panel-card" style="margin-bottom: 0;">
+    <div class="panel-header">
+      <h2 class="panel-title">Grievance Distribution By Category</h2>
+      <span style="font-size: 0.8125rem; color: var(--text-muted); font-weight: 500;">
+        {{ category_counts|length }} active categories
+      </span>
+    </div>
+    <div class="panel-body">
+      {% if category_counts %}
+        {% for cat in category_counts %}
+          <div class="category-metric-row">
+            <div class="category-metric-header">
+              <span style="color: var(--text-main);">{{ cat.category }}</span>
+              <span style="color: var(--text-muted);">{{ cat.count }} issues ({{ cat.pct }}%)</span>
+            </div>
+            <div class="progress-track">
+              <div class="progress-fill" style="width: {{ cat.pct }}%;"></div>
+            </div>
+          </div>
+        {% endfor %}
+      {% else %}
+        <p style="color: var(--text-muted); font-size: 0.875rem;">No category data available yet.</p>
+      {% endif %}
+    </div>
+  </div>
+
+  <!-- Operational Performance KPI Card -->
+  <div class="panel-card" style="margin-bottom: 0;">
+    <div class="panel-header">
+      <h2 class="panel-title">System Metrics</h2>
+    </div>
+    <div class="panel-body" style="display: flex; flex-direction: column; gap: 1.25rem;">
+      <div style="padding: 1rem; background: var(--bg-canvas); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+        <div style="font-size: 0.8125rem; color: var(--text-muted); font-weight: 600;">REGISTERED CITIZENS</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-top: 0.25rem;">
+          {{ stats.total_citizens }} Verified Accounts
+        </div>
+      </div>
+
+      <div style="padding: 1rem; background: var(--bg-canvas); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+        <div style="font-size: 0.8125rem; color: var(--text-muted); font-weight: 600;">ACTIVE DEPARTMENTS</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--text-main); margin-top: 0.25rem;">
+          {{ departments|length }} Municipal Boards
+        </div>
+      </div>
+
+      <div style="padding: 1rem; background: var(--bg-canvas); border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+        <div style="font-size: 0.8125rem; color: var(--text-muted); font-weight: 600;">REJECTED / INVALID</div>
+        <div style="font-size: 1.5rem; font-weight: 700; color: var(--status-rejected-text); margin-top: 0.25rem;">
+          {{ stats.rejected }} Disqualified
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<!-- Recent Submissions Table with Quick Review Action -->
+<div class="panel-card">
+  <div class="panel-header">
+    <h2 class="panel-title">Recent Citizen Submissions Stream</h2>
+    <a href="{{ url_for('admin.complaints') }}" class="btn btn-secondary btn-sm">
+      Open Full Management Grid &rarr;
+    </a>
+  </div>
+
+  <div class="table-responsive">
+    <table class="custom-table">
+      <thead>
+        <tr>
+          <th>Ticket</th>
+          <th>Citizen</th>
+          <th>Category & Title</th>
+          <th>Location</th>
+          <th>Department</th>
+          <th>Status</th>
+          <th style="text-align: right;">Action</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for c in recent_complaints %}
+        <tr>
+          <td>
+            <span class="ticket-pill">{{ c.ticket_number }}</span>
+          </td>
+          <td>
+            <div style="font-weight: 600; color: var(--text-main);">{{ c.citizen_name }}</div>
+            <div style="font-size: 0.75rem; color: var(--text-muted);">{{ c.citizen_phone }}</div>
+          </td>
+          <td>
+            <div style="font-weight: 600; color: var(--text-main);">{{ c.title }}</div>
+            <span class="badge-category">{{ c.category }}</span>
+          </td>
+          <td style="max-width: 180px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: 0.8125rem;">
+            {{ c.location }}
+          </td>
+          <td>
+            <span style="font-size: 0.8125rem;">{{ c.department_name or 'Unassigned' }}</span>
+          </td>
+          <td>
+            <span class="badge-status status-{{ c.status }}">{{ c.status.replace('_', ' ') }}</span>
+          </td>
+          <td style="text-align: right;">
+            <button type="button" class="btn btn-primary btn-sm" onclick="openComplaintModal({{ c.id }});">
+              Review &amp; Act
+            </button>
+          </td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</div>
+
+<!-- Action / Resolution Modal Component -->
+<div class="modal-backdrop" id="complaintActionModal">
+  <div class="modal-dialog">
+    <div class="modal-header">
+      <div>
+        <h3 style="font-size: 1.15rem; color: var(--text-main);">
+          Ticket Action: <span id="modalTicketNumber" class="ticket-pill"></span>
+        </h3>
+        <span id="modalCategory" class="badge-category" style="margin-top: 0.25rem;"></span>
+      </div>
+      <button type="button" class="modal-close-trigger" style="background: none; border: none; font-size: 1.5rem; cursor: pointer; color: var(--text-muted);">&times;</button>
+    </div>
+
+    <form id="modalUpdateForm" method="POST">
+      <div class="modal-body" style="display: flex; flex-direction: column; gap: 1.25rem;">
+        
+        <!-- Citizen Information Summary -->
+        <div style="background: var(--bg-canvas); padding: 1rem; border-radius: var(--radius-md); border: 1px solid var(--border-subtle);">
+          <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.4rem;">
+            Complainant Details
+          </div>
+          <div style="font-size: 0.875rem;">
+            <span style="font-weight: 600;" id="modalCitizenName"></span> &bull; 
+            <span id="modalCitizenPhone" style="color: var(--text-muted);"></span> &bull; 
+            <span id="modalCitizenEmail" style="color: var(--text-muted);"></span>
+          </div>
+          <div style="font-size: 0.8125rem; color: var(--text-main); margin-top: 0.25rem;">
+            <strong>Location:</strong> <span id="modalLocation"></span>
+          </div>
+        </div>
+
+        <!-- Description Box -->
+        <div>
+          <div style="font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--text-muted); margin-bottom: 0.25rem;">
+            Grievance Description
+          </div>
+          <p id="modalDescription" style="font-size: 0.875rem; color: var(--text-main); line-height: 1.5;"></p>
+        </div>
+
+        <!-- Attached Image Preview Container -->
+        <div id="modalImageContainer" style="display: none;"></div>
+
+        <!-- Control 1: Update Status -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="modalStatusSelect" class="form-label">Update Grievance Status <span class="required">*</span></label>
+          <select name="status" id="modalStatusSelect" class="form-select" required>
+            <option value="pending">Pending Review</option>
+            <option value="in_progress">In Progress (Crew Dispatched)</option>
+            <option value="resolved">Resolved (Completed & Verified)</option>
+            <option value="rejected">Rejected (Out of Municipal Scope / Invalid)</option>
+          </select>
+        </div>
+
+        <!-- Control 2: Assign Department -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="modalDeptSelect" class="form-label">Assign Municipal Department</label>
+          <select name="department_id" id="modalDeptSelect" class="form-select">
+            <option value="">-- No Department Assigned --</option>
+            {% for d in departments %}
+              <option value="{{ d.id }}">{{ d.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Control 3: Official Remarks -->
+        <div class="form-group" style="margin-bottom: 0;">
+          <label for="modalAdminRemarks" class="form-label">Official Remarks &amp; Citizen Resolution Notice</label>
+          <textarea name="admin_remarks" 
+                    id="modalAdminRemarks" 
+                    rows="3" 
+                    class="form-control" 
+                    placeholder="Provide details on dispatch, repair status, or resolution rationale visible to citizen..."></textarea>
+        </div>
+
+      </div>
+
+      <div class="modal-footer">
+        <button type="button" class="btn btn-secondary modal-close-trigger">Close</button>
+        <button type="submit" class="btn btn-primary">
+          Save &amp; Publish Update
+        </button>
+      </div>
+    </form>
+  </div>
+</div>
+{% endblock %}

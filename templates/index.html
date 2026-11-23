@@ -1,0 +1,452 @@
+{% extends "base.html" %}
+
+{% block title %}Civic Connects - Municipal Grievance Redressal Portal{% endblock %}
+
+{% block content %}
+<div style="min-height: 100vh; display: flex; flex-direction: column; background-color: var(--bg-canvas);">
+  
+  <!-- Navigation Header -->
+  <header style="background: #FFFFFF; border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: 1000; box-shadow: var(--shadow-sm);">
+    <div style="max-width: 1240px; margin: 0 auto; padding: 0.875rem 1.5rem; display: flex; align-items: center; justify-content: space-between;">
+      <a href="{{ url_for('index') }}" style="display: flex; align-items: center; gap: 0.75rem;">
+        <div class="sidebar-logo-icon" style="width: 38px; height: 38px; background: var(--brand-blue); border-radius: var(--radius-md);">
+          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#FFFFFF" stroke-width="2.2">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+            <path d="M9 12l2 2 4-4"></path>
+          </svg>
+        </div>
+        <div>
+          <div style="font-size: 1.25rem; font-weight: 800; color: var(--text-main); line-height: 1.1;">Civic Connects</div>
+          <div style="font-size: 0.7rem; font-weight: 700; text-transform: uppercase; color: var(--brand-blue); letter-spacing: 0.08em;">Municipal Grievance Redressal</div>
+        </div>
+      </a>
+
+      <!-- Desktop Nav Links -->
+      <nav style="display: flex; align-items: center; gap: 1.5rem;" class="landing-nav-links">
+        <a href="#about" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); transition: color 0.2s;">
+          About Us
+        </a>
+        <a href="#how-it-works" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); transition: color 0.2s;">
+          How It Works
+        </a>
+        <a href="#categories" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); transition: color 0.2s;">
+          Categories
+        </a>
+        <a href="#contact" style="font-size: 0.9rem; font-weight: 600; color: var(--text-muted); transition: color 0.2s;">
+          Contact Us
+        </a>
+        <a href="{{ url_for('complaints.track') }}" style="font-size: 0.9rem; font-weight: 600; color: var(--brand-blue); display: flex; align-items: center; gap: 0.35rem;">
+          <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+          Track Ticket
+        </a>
+      </nav>
+
+      <!-- Action Buttons -->
+      <div style="display: flex; align-items: center; gap: 0.75rem;">
+        {% if current_user %}
+          <a href="{{ url_for('citizen.dashboard') if current_user.role == 'citizen' else url_for('admin.dashboard') }}" 
+             class="btn btn-primary btn-sm" style="font-weight: 700;">
+            Explore Portal &rarr;
+          </a>
+          <a href="{{ url_for('auth.logout') }}" class="btn btn-secondary btn-sm" style="color: var(--danger);">
+            Sign Out
+          </a>
+        {% else %}
+          <a href="{{ url_for('explore') }}" class="btn btn-primary btn-sm" style="font-weight: 700;">
+            Explore
+          </a>
+        {% endif %}
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero Section -->
+  <section style="background: radial-gradient(circle at 50% 15%, #EFF6FF 0%, #F8FAFC 70%); padding: 5.5rem 1.5rem 4.5rem 1.5rem; text-align: center; border-bottom: 1px solid var(--border-subtle);">
+    <div style="max-width: 860px; margin: 0 auto;">
+      
+      <div style="display: inline-flex; align-items: center; gap: 0.5rem; background: var(--brand-blue-light); border: 1px solid var(--brand-blue-border); padding: 0.4rem 1rem; border-radius: var(--radius-pill); font-size: 0.8125rem; font-weight: 700; color: var(--brand-blue); margin-bottom: 1.5rem; box-shadow: 0 2px 6px rgba(37,99,235,0.08);">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        <span>Official Municipal Grievance &amp; Redressal Network</span>
+      </div>
+
+      <h1 style="font-size: 3.25rem; font-weight: 800; line-height: 1.15; color: var(--text-main); margin-bottom: 1.25rem; letter-spacing: -0.02em;">
+        Empowering Citizens.<br>
+        <span style="color: var(--brand-blue); background: linear-gradient(135deg, #1D4ED8 0%, #2563EB 50%, #3B82F6 100%); -webkit-background-clip: text; -webkit-text-fill-color: transparent;">Restoring Communities.</span>
+      </h1>
+
+      <p style="font-size: 1.15rem; color: var(--text-muted); line-height: 1.65; margin-bottom: 2.25rem; max-width: 680px; margin-left: auto; margin-right: auto;">
+        Civic Connects is the direct municipal bridge uniting residents and local city authorities. Report road damage, water leaks, power hazards, and sanitation needs with GPS precision, transparent milestone tracking, and verified civic accountability.
+      </p>
+
+      <!-- Primary Hero CTA & Explore Section -->
+      <div style="display: flex; justify-content: center; align-items: center; gap: 1rem; flex-wrap: wrap; margin-bottom: 2.5rem;">
+        <!-- The Explore Call-to-Action Button -->
+        <a href="{{ url_for('explore') }}" class="btn btn-primary btn-lg" style="font-size: 1.05rem; padding: 0.9rem 2.25rem; box-shadow: 0 10px 25px rgba(37, 99, 235, 0.28); font-weight: 700; display: inline-flex; align-items: center; gap: 0.6rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+            <circle cx="12" cy="12" r="10"></circle>
+            <polygon points="16.24 7.76 14.12 14.12 7.76 16.24 9.88 9.88 16.24 7.76"></polygon>
+          </svg>
+          Explore Citizen Portal
+        </a>
+
+        <a href="#how-it-works" class="btn btn-secondary btn-lg" style="font-size: 1.05rem; padding: 0.9rem 1.75rem;">
+          How It Works &darr;
+        </a>
+      </div>
+
+      <!-- Instant Ticket Search Box -->
+      <div style="background: #FFFFFF; border: 1px solid var(--border-strong); border-radius: var(--radius-xl); padding: 0.5rem; box-shadow: var(--shadow-lg); max-width: 520px; margin: 0 auto; display: flex; gap: 0.5rem;">
+        <input type="text" 
+               id="heroTicketInput" 
+               placeholder="Have a Ticket ID? (e.g. #CC-8421)" 
+               class="form-control" 
+               style="border: none; font-size: 0.95rem; padding: 0.75rem 1rem; font-family: monospace;">
+        <button type="button" 
+                class="btn btn-primary" 
+                style="padding: 0 1.5rem; font-weight: 600;" 
+                onclick="const val = document.getElementById('heroTicketInput').value.trim(); if(val) window.location.href='/track?ticket=' + encodeURIComponent(val);">
+          Track Status
+        </button>
+      </div>
+
+      <div style="margin-top: 1rem; font-size: 0.8125rem; color: var(--text-muted);">
+        🔒 Public portals require authentication to file or review personal grievances.
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Live Statistics Metrics Ribbon -->
+  <section style="background: #FFFFFF; border-bottom: 1px solid var(--border-subtle); padding: 2.5rem 1.5rem;">
+    <div style="max-width: 1100px; margin: 0 auto; display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 2rem; text-align: center;">
+      <div style="padding: 1rem; border-radius: var(--radius-md); background: var(--bg-canvas);">
+        <div style="font-size: 2.5rem; font-weight: 800; color: var(--brand-blue); line-height: 1;">{{ stats.resolved }}+</div>
+        <div style="font-size: 0.8125rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 0.5rem; letter-spacing: 0.05em;">Grievances Resolved</div>
+      </div>
+      <div style="padding: 1rem; border-radius: var(--radius-md); background: var(--bg-canvas);">
+        <div style="font-size: 2.5rem; font-weight: 800; color: #D97706; line-height: 1;">{{ stats.active }}</div>
+        <div style="font-size: 0.8125rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 0.5rem; letter-spacing: 0.05em;">Active Field Crews</div>
+      </div>
+      <div style="padding: 1rem; border-radius: var(--radius-md); background: var(--bg-canvas);">
+        <div style="font-size: 2.5rem; font-weight: 800; color: #059669; line-height: 1;">100%</div>
+        <div style="font-size: 0.8125rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 0.5rem; letter-spacing: 0.05em;">Transparent Audit Trail</div>
+      </div>
+      <div style="padding: 1rem; border-radius: var(--radius-md); background: var(--bg-canvas);">
+        <div style="font-size: 2.5rem; font-weight: 800; color: var(--text-main); line-height: 1;">{{ stats.citizens }}+</div>
+        <div style="font-size: 0.8125rem; font-weight: 700; color: var(--text-muted); text-transform: uppercase; margin-top: 0.5rem; letter-spacing: 0.05em;">Registered Residents</div>
+      </div>
+    </div>
+  </section>
+
+  <!-- About Us Section -->
+  <section id="about" style="padding: 5rem 1.5rem; max-width: 1160px; margin: 0 auto; width: 100%;">
+    <div style="text-align: center; margin-bottom: 3.5rem;">
+      <div style="display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--brand-blue); letter-spacing: 0.1em; margin-bottom: 0.5rem;">
+        Civic Mission &amp; Values
+      </div>
+      <h2 style="font-size: 2.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem;">
+        About Civic Connects
+      </h2>
+      <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 640px; margin: 0 auto; line-height: 1.6;">
+        Transforming traditional municipal bureaucracies into an agile, accountable, and transparent digital redressal network for modern smart cities.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 2rem;">
+      <div class="panel-card" style="padding: 2rem; border-top: 4px solid var(--brand-blue); margin-bottom: 0; display: flex; flex-direction: column;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #EFF6FF; display: flex; align-items: center; justify-content: center; color: var(--brand-blue); margin-bottom: 1.25rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+        </div>
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">Transparent Governance</h3>
+        <p style="color: var(--text-muted); font-size: 0.925rem; line-height: 1.6; flex-grow: 1;">
+          Every submitted issue generates an immutable chronological audit trail. Citizens receive real-time timestamped updates whenever an administrator assesses or updates work progress.
+        </p>
+      </div>
+
+      <div class="panel-card" style="padding: 2rem; border-top: 4px solid #059669; margin-bottom: 0; display: flex; flex-direction: column;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #ECFDF5; display: flex; align-items: center; justify-content: center; color: #059669; margin-bottom: 1.25rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 14 14"></polyline></svg>
+        </div>
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">Expedited Response Times</h3>
+        <p style="color: var(--text-muted); font-size: 0.925rem; line-height: 1.6; flex-grow: 1;">
+          By leveraging automated category matching and geolocation pinning, reports are routed directly to designated division supervisors, slashing municipal triage delays by up to 65%.
+        </p>
+      </div>
+
+      <div class="panel-card" style="padding: 2rem; border-top: 4px solid #D97706; margin-bottom: 0; display: flex; flex-direction: column;">
+        <div style="width: 48px; height: 48px; border-radius: 12px; background: #FEF3C7; display: flex; align-items: center; justify-content: center; color: #D97706; margin-bottom: 1.25rem;">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 0 0-3-3.87"></path><path d="M16 3.13a4 4 0 0 1 0 7.75"></path></svg>
+        </div>
+        <h3 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 0.5rem;">Community Empowerment</h3>
+        <p style="color: var(--text-muted); font-size: 0.925rem; line-height: 1.6; flex-grow: 1;">
+          Residents play an active role in urban safety and neighborhood revitalization. Whether pinpointing dark streetlights or reporting hazardous electrical wires, your report restores safety.
+        </p>
+      </div>
+    </div>
+  </section>
+
+  <!-- How It Works Section -->
+  <section id="how-it-works" style="background: #FFFFFF; padding: 5rem 1.5rem; border-top: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle);">
+    <div style="max-width: 1160px; margin: 0 auto; width: 100%;">
+      <div style="text-align: center; margin-bottom: 3.5rem;">
+        <div style="display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--brand-blue); letter-spacing: 0.1em; margin-bottom: 0.5rem;">
+          Seamless 4-Step Progression
+        </div>
+        <h2 style="font-size: 2.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem;">
+          How Civic Connects Works
+        </h2>
+        <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 620px; margin: 0 auto; line-height: 1.6;">
+          From the instant you notice an issue to final field verification, tracking your civic grievance is effortless and transparent.
+        </p>
+      </div>
+
+      <!-- Progression Cards -->
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 1.75rem; position: relative;">
+        <!-- Step 1 -->
+        <div style="background: var(--bg-canvas); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 2rem 1.5rem; position: relative; display: flex; flex-direction: column;">
+          <div style="position: absolute; top: 1rem; right: 1.25rem; font-size: 2.25rem; font-weight: 800; color: rgba(37,99,235,0.15);">01</div>
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: var(--brand-blue); color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-bottom: 1.25rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">1. Report Issue</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.6;">
+            Log into the Citizen Portal, select the civic category, detect your GPS coordinates, and attach photos illustrating the hazard.
+          </p>
+        </div>
+
+        <!-- Step 2 -->
+        <div style="background: var(--bg-canvas); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 2rem 1.5rem; position: relative; display: flex; flex-direction: column;">
+          <div style="position: absolute; top: 1rem; right: 1.25rem; font-size: 2.25rem; font-weight: 800; color: rgba(37,99,235,0.15);">02</div>
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: #2563EB; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-bottom: 1.25rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">2. Authority Triage</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.6;">
+            Municipal command triage assesses urgency, assigns the grievance to the specialized department, and issues a field work order.
+          </p>
+        </div>
+
+        <!-- Step 3 -->
+        <div style="background: var(--bg-canvas); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 2rem 1.5rem; position: relative; display: flex; flex-direction: column;">
+          <div style="position: absolute; top: 1rem; right: 1.25rem; font-size: 2.25rem; font-weight: 800; color: rgba(37,99,235,0.15);">03</div>
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: #D97706; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-bottom: 1.25rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 4 23 10 17 10"></polyline><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path></svg>
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">3. Crew In Progress</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.6;">
+            Crews mobilize on-site. Real-time updates appear on your interactive milestone stepper, accompanied by internal municipal remarks.
+          </p>
+        </div>
+
+        <!-- Step 4 -->
+        <div style="background: var(--bg-canvas); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 2rem 1.5rem; position: relative; display: flex; flex-direction: column;">
+          <div style="position: absolute; top: 1rem; right: 1.25rem; font-size: 2.25rem; font-weight: 800; color: rgba(5,150,105,0.15);">04</div>
+          <div style="width: 44px; height: 44px; border-radius: 50%; background: #059669; color: #FFFFFF; display: flex; align-items: center; justify-content: center; font-weight: 700; margin-bottom: 1.25rem;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"></polyline></svg>
+          </div>
+          <h3 style="font-size: 1.15rem; font-weight: 700; margin-bottom: 0.5rem;">4. Resolution Verified</h3>
+          <p style="color: var(--text-muted); font-size: 0.875rem; line-height: 1.6;">
+            Repairs are certified complete by civil engineers. Official resolution statements and closure notes are published to your audit log.
+          </p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Categories Section -->
+  <section id="categories" style="padding: 5rem 1.5rem; max-width: 1160px; margin: 0 auto; width: 100%;">
+    <div style="text-align: center; margin-bottom: 3.5rem;">
+      <div style="display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--brand-blue); letter-spacing: 0.1em; margin-bottom: 0.5rem;">
+        Municipal Coverage
+      </div>
+      <h2 style="font-size: 2.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem;">
+        Supported Civic Categories
+      </h2>
+      <p style="color: var(--text-muted); max-width: 580px; margin: 0 auto; font-size: 1.05rem;">
+        Specialized routing to municipal boards ensures swift, expert attention to each community issue.
+      </p>
+    </div>
+
+    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1.5rem;">
+      <div class="panel-card" style="padding: 1.5rem; margin-bottom: 0;">
+        <div class="kpi-icon-pill" style="background: #EFF6FF; color: var(--brand-blue); margin-bottom: 1rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 15s1-1 4-1 5 2 8 2 4-1 4-1V3s-1 1-4 1-5-2-8-2-4 1-4 1z"></path><line x1="4" y1="22" x2="4" y2="15"></line></svg>
+        </div>
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.35rem; font-weight: 700;">Roads &amp; Highways</h3>
+        <p style="font-size: 0.875rem; color: var(--text-muted);">Potholes, asphalt crumbling, damaged sidewalks, road debris, and hazardous fissures.</p>
+      </div>
+
+      <div class="panel-card" style="padding: 1.5rem; margin-bottom: 0;">
+        <div class="kpi-icon-pill" style="background: #ECFDF5; color: #059669; margin-bottom: 1rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path></svg>
+        </div>
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.35rem; font-weight: 700;">Water &amp; Sewerage</h3>
+        <p style="font-size: 0.875rem; color: var(--text-muted);">Burst mains, drinking water contamination, sewage line backups, and low supply pressure.</p>
+      </div>
+
+      <div class="panel-card" style="padding: 1.5rem; margin-bottom: 0;">
+        <div class="kpi-icon-pill" style="background: #FEF3C7; color: #D97706; margin-bottom: 1rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg>
+        </div>
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.35rem; font-weight: 700;">Electricity &amp; Power</h3>
+        <p style="font-size: 0.875rem; color: var(--text-muted);">Sparking overhead cables, open junction boxes, blown transformers, and neighborhood blackouts.</p>
+      </div>
+
+      <div class="panel-card" style="padding: 1.5rem; margin-bottom: 0;">
+        <div class="kpi-icon-pill" style="background: #FFF1F2; color: #E11D48; margin-bottom: 1rem;">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+        </div>
+        <h3 style="font-size: 1.1rem; margin-bottom: 0.35rem; font-weight: 700;">Solid Waste Management</h3>
+        <p style="font-size: 0.875rem; color: var(--text-muted);">Overflowing commercial bins, illegal roadside trash dumps, and bio-waste clearance requests.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- Contact Us Section -->
+  <section id="contact" style="background: #FFFFFF; padding: 5rem 1.5rem; border-top: 1px solid var(--border-subtle);">
+    <div style="max-width: 1160px; margin: 0 auto; width: 100%;">
+      
+      <div style="text-align: center; margin-bottom: 3.5rem;">
+        <div style="display: inline-block; font-size: 0.75rem; font-weight: 700; text-transform: uppercase; color: var(--brand-blue); letter-spacing: 0.1em; margin-bottom: 0.5rem;">
+          We Are Here To Assist
+        </div>
+        <h2 style="font-size: 2.4rem; font-weight: 800; color: var(--text-main); margin-bottom: 0.75rem;">
+          Contact Municipal Support
+        </h2>
+        <p style="color: var(--text-muted); font-size: 1.05rem; max-width: 620px; margin: 0 auto; line-height: 1.6;">
+          Have questions about municipal jurisdictions, administrative clearance, or technical support? Reach out directly.
+        </p>
+      </div>
+
+      <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 3rem; align-items: start;">
+        
+        <!-- Contact Form Card -->
+        <div class="panel-card" style="padding: 2.5rem 2rem; margin-bottom: 0; box-shadow: var(--shadow-md);">
+          <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 0.5rem; color: var(--text-main);">Send a Message</h3>
+          <p style="font-size: 0.875rem; color: var(--text-muted); margin-bottom: 1.5rem;">
+            Submit your inquiry and our municipal helpdesk team will respond within 24 to 48 hours.
+          </p>
+
+          <form action="{{ url_for('contact') }}" method="POST" id="contactForm">
+            <div class="form-group">
+              <label for="contactName" class="form-label">Full Name <span class="required">*</span></label>
+              <input type="text" id="contactName" name="name" class="form-control" placeholder="e.g. Jane Doe" required>
+            </div>
+
+            <div class="form-group">
+              <label for="contactEmail" class="form-label">Email Address <span class="required">*</span></label>
+              <input type="email" id="contactEmail" name="email" class="form-control" placeholder="jane@example.com" required>
+            </div>
+
+            <div class="form-group">
+              <label for="contactSubject" class="form-label">Subject</label>
+              <input type="text" id="contactSubject" name="subject" class="form-control" placeholder="Grievance escalation or inquiry">
+            </div>
+
+            <div class="form-group">
+              <label for="contactMessage" class="form-label">Message <span class="required">*</span></label>
+              <textarea id="contactMessage" name="message" rows="4" class="form-control" placeholder="Describe your question or municipal support request..." required></textarea>
+            </div>
+
+            <button type="submit" class="btn btn-primary" style="width: 100%; padding: 0.875rem; font-weight: 700;">
+              Send Message &rarr;
+            </button>
+          </form>
+        </div>
+
+        <!-- Direct Municipal Support Details -->
+        <div>
+          <h3 style="font-size: 1.3rem; font-weight: 700; margin-bottom: 1rem; color: var(--text-main);">Municipal Headquarters</h3>
+          <p style="color: var(--text-muted); font-size: 0.95rem; line-height: 1.6; margin-bottom: 2rem;">
+            Civic Connects is monitored directly by the Municipal Corporation Administration. For emergency safety hazards requiring immediate triage, please utilize the 24/7 hotline.
+          </p>
+
+          <div style="display: flex; flex-direction: column; gap: 1.5rem;">
+            
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: #EFF6FF; color: var(--brand-blue); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path><circle cx="12" cy="10" r="3"></circle></svg>
+              </div>
+              <div>
+                <div style="font-weight: 700; color: var(--text-main);">Central City Hall</div>
+                <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.2rem;">
+                  100 Civic Center Plaza, Suite 400<br>Department of Public Works &amp; Redressal
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: #ECFDF5; color: #059669; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72 12.84 12.84 0 0 0 .7 2.81 2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45 12.84 12.84 0 0 0 2.81.7A2 2 0 0 1 22 16.92z"></path></svg>
+              </div>
+              <div>
+                <div style="font-weight: 700; color: var(--text-main);">24/7 Citizen Helpline</div>
+                <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.2rem;">
+                  Toll-Free: 1800-123-2026<br>National Emergency: 112 &bull; Electricity Board: 1912
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: #FEF3C7; color: #D97706; display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"></path><polyline points="22,6 12,13 2,6"></polyline></svg>
+              </div>
+              <div>
+                <div style="font-weight: 700; color: var(--text-main);">Email Correspondence</div>
+                <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.2rem;">
+                  support@civicconnects.gov<br>escalations@civicconnects.gov
+                </div>
+              </div>
+            </div>
+
+            <div style="display: flex; align-items: flex-start; gap: 1rem;">
+              <div style="width: 44px; height: 44px; border-radius: 10px; background: #F1F5F9; color: var(--text-main); display: flex; align-items: center; justify-content: center; flex-shrink: 0;">
+                <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+              </div>
+              <div>
+                <div style="font-weight: 700; color: var(--text-main);">Operating Hours</div>
+                <div style="font-size: 0.875rem; color: var(--text-muted); margin-top: 0.2rem;">
+                  Digital Portal: Active 24/7/365<br>Municipal Office: Mon - Fri, 8:00 AM - 5:00 PM
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+
+      </div>
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer style="background: #0F172A; color: #94A3B8; padding: 3.5rem 1.5rem 2.5rem 1.5rem; margin-top: auto; border-top: 1px solid rgba(255, 255, 255, 0.08);">
+    <div style="max-width: 1160px; margin: 0 auto; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 2rem;">
+      <div>
+        <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.5rem;">
+          <div style="width: 24px; height: 24px; background: var(--brand-blue); border-radius: 6px; display: flex; align-items: center; justify-content: center; color: #FFF;">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+          </div>
+          <span style="font-size: 1.15rem; font-weight: 800; color: #FFFFFF;">Civic Connects</span>
+        </div>
+        <p style="font-size: 0.8125rem; color: #64748B;">
+          Municipal Citizen Grievance Redressal System &bull; Database Engineering Project
+        </p>
+      </div>
+
+      <div style="display: flex; gap: 2rem; font-size: 0.875rem; flex-wrap: wrap;">
+        <a href="{{ url_for('explore') }}" style="color: #94A3B8;">Explore Portal</a>
+        <a href="{{ url_for('complaints.track') }}" style="color: #94A3B8;">Public Ticket Tracking</a>
+        <a href="{{ url_for('auth.login', role='citizen') }}" style="color: #94A3B8;">Citizen Login</a>
+        <a href="{{ url_for('auth.login', role='admin') }}" style="color: #94A3B8;">Authority Login</a>
+      </div>
+    </div>
+    
+    <div style="max-width: 1160px; margin: 2rem auto 0 auto; padding-top: 1.5rem; border-top: 1px solid rgba(255, 255, 255, 0.06); display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem; font-size: 0.75rem; color: #64748B;">
+      <div>&copy; 2026 Civic Connects Municipal Corporation. All rights reserved.</div>
+      <div>Ensuring accountability and transparent governance across all municipal wards.</div>
+    </div>
+  </footer>
+
+</div>
+{% endblock %}

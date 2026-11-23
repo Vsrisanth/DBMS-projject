@@ -1,0 +1,1314 @@
+<!-- =====================================================================
+     AI CIVIC SUPPORT CHATBOT COMPONENT
+     Movable 3D Assistant Widget with Custom Drag-and-Drop & Live Redressal Intelligence
+     ===================================================================== -->
+
+<div id="civicAiRoot" class="civic-ai-root">
+  
+  <!-- Draggable Floating Launcher Button -->
+  <div id="civicAiLauncher" 
+       class="civic-ai-launcher" 
+       role="button" 
+       tabindex="0"
+       aria-label="Civic Assistant AI - Drag to move me anywhere"
+       title="Civic Assistant AI (Drag me anywhere on your screen!)">
+    
+    <div class="civic-ai-avatar-wrapper">
+      <img src="{{ url_for('static', filename='images/civic_bot.png') }}" 
+           alt="Civic AI Assistant" 
+           class="civic-ai-bot-img" 
+           draggable="false">
+      <!-- 3D Speech Bubble '?' Badge matching character -->
+      <span class="civic-ai-speech-bubble" title="Need civic assistance? Ask me!">?</span>
+      <!-- Glowing Active Pulse -->
+      <span class="civic-ai-online-pulse"></span>
+    </div>
+
+    <!-- Drag / Click Hint Callout -->
+    <div class="civic-ai-hint-callout">
+      <span class="civic-ai-drag-handle-glyph">✥</span>
+      <span>Chat &bull; Move me anywhere</span>
+    </div>
+  </div>
+
+  <!-- Draggable Chat Window -->
+  <div id="civicAiWindow" 
+       class="civic-ai-window" 
+       style="display: none;" 
+       role="dialog" 
+       aria-labelledby="civicAiTitle">
+    
+    <!-- Draggable Window Header Bar -->
+    <div id="civicAiHeader" class="civic-ai-header" title="Click and drag to move this chat window">
+      
+      <!-- Drag Grip Icon & Character Info -->
+      <div class="civic-ai-header-info">
+        <div class="civic-ai-drag-grip" title="Drag to reposition window">
+          <svg width="12" height="18" viewBox="0 0 12 18" fill="currentColor" opacity="0.65">
+            <circle cx="3" cy="3" r="1.5"></circle>
+            <circle cx="9" cy="3" r="1.5"></circle>
+            <circle cx="3" cy="9" r="1.5"></circle>
+            <circle cx="9" cy="9" r="1.5"></circle>
+            <circle cx="3" cy="15" r="1.5"></circle>
+            <circle cx="9" cy="15" r="1.5"></circle>
+          </svg>
+        </div>
+
+        <div class="civic-ai-header-avatar">
+          <img src="{{ url_for('static', filename='images/civic_bot.png') }}" 
+               alt="Civic Bot" 
+               draggable="false">
+          <span class="header-status-dot"></span>
+        </div>
+
+        <div>
+          <div id="civicAiTitle" class="civic-ai-header-title">Civic Assistant AI</div>
+          <div class="civic-ai-header-sub">Online &bull; 24/7 Redressal Guide</div>
+        </div>
+      </div>
+
+      <!-- Action Buttons (Reset, Clear, Close) -->
+      <div class="civic-ai-header-actions">
+        <!-- Snap Back / Reset Position -->
+        <button id="civicAiResetPosBtn" 
+                type="button" 
+                class="civic-ai-action-btn" 
+                title="Reset to default screen position">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M3 12a9 9 0 0 1 15-6.7L21 8"></path>
+            <path d="M21 3v5h-5"></path>
+            <path d="M21 12a9 9 0 0 1-15 6.7L3 16"></path>
+            <path d="M3 21v-5h5"></path>
+          </svg>
+        </button>
+
+        <!-- Clear Chat History -->
+        <button id="civicAiClearBtn" 
+                type="button" 
+                class="civic-ai-action-btn" 
+                title="Clear conversation history">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <polyline points="3 6 5 6 21 6"></polyline>
+            <path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path>
+          </svg>
+        </button>
+
+        <!-- Close / Minimize Window -->
+        <button id="civicAiCloseBtn" 
+                type="button" 
+                class="civic-ai-action-btn close-btn" 
+                title="Minimize chat">
+          &times;
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Draggable Notice Banner -->
+    <div class="civic-ai-move-hint-bar">
+      <span>✥ Header is draggable &bull; Position anywhere on screen</span>
+    </div>
+
+    <!-- Restricted / Locked State for Guest Users -->
+    <div id="civicAiLockedState" class="civic-ai-locked-state" style="display: none;">
+      <div class="civic-ai-lock-card">
+        <div class="civic-ai-lock-icon-wrap">
+          <svg width="34" height="34" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round">
+            <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+            <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+          </svg>
+        </div>
+        <div class="civic-ai-locked-badge">Citizen Access Only</div>
+        <h3 class="civic-ai-locked-title">Civic Assistant AI</h3>
+        <p class="civic-ai-locked-msg">Please Log In or Sign Up to chat with Civic Assistant AI.</p>
+        <div class="civic-ai-locked-actions">
+          <a href="{{ url_for('auth.login', role='citizen') }}" class="civic-ai-auth-btn civic-ai-btn-login">
+            Log In
+          </a>
+          <a href="{{ url_for('auth.register') }}" class="civic-ai-auth-btn civic-ai-btn-signup">
+            Sign Up
+          </a>
+        </div>
+        <div class="civic-ai-locked-note">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="16" x2="12" y2="12"></line><line x1="12" y1="8" x2="12.01" y2="8"></line></svg>
+          <span>Get real-time grievance tracking, auto-filing, and direct redressal assistance.</span>
+        </div>
+      </div>
+    </div>
+
+    <!-- Toast Alert for Unauthenticated Action Attempts -->
+    <div id="civicAiToast" class="civic-ai-toast" style="display: none;">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line></svg>
+      <span id="civicAiToastMsg">Please log in or sign up to continue.</span>
+    </div>
+
+    <!-- Messages Container -->
+    <div id="civicAiMessages" class="civic-ai-messages">
+      <!-- Populated dynamically via JS -->
+    </div>
+
+    <!-- Suggestion Action Chips -->
+    <div id="civicAiChipsContainer" class="civic-ai-chips">
+      <button class="civic-ai-chip" onclick="sendCivicAiChipMessage('How do I report a pothole?')">Report Issue</button>
+      <button class="civic-ai-chip" onclick="sendCivicAiChipMessage('Track ticket status')">Track Ticket</button>
+      <button class="civic-ai-chip" onclick="sendCivicAiChipMessage('Emergency contacts')">Emergency Contacts</button>
+      <button class="civic-ai-chip" onclick="sendCivicAiChipMessage('What do milestones mean?')">Milestone Steps</button>
+      <button class="civic-ai-chip" onclick="sendCivicAiChipMessage('Supported categories')">Categories</button>
+    </div>
+
+    <!-- Input Box -->
+    <form id="civicAiInputForm" class="civic-ai-input-bar">
+      <input type="text" 
+             id="civicAiTextInput" 
+             placeholder="Ask about grievances, tickets, FAQs..." 
+             autocomplete="off">
+      <button type="submit" class="civic-ai-send-btn" aria-label="Send Message">
+        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+          <line x1="22" y1="2" x2="11" y2="13"></line>
+          <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+        </svg>
+      </button>
+    </form>
+
+  </div>
+</div>
+
+<style>
+/* =====================================================================
+   AI CIVIC ASSISTANT - STYLESHEET
+   ===================================================================== */
+
+.civic-ai-root {
+  font-family: 'Plus Jakarta Sans', 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  z-index: 99999;
+}
+
+/* Floating Draggable Launcher */
+.civic-ai-launcher {
+  position: fixed;
+  bottom: 1.5rem;
+  right: 1.5rem;
+  width: 72px;
+  height: 72px;
+  border-radius: 50%;
+  cursor: grab;
+  z-index: 99999;
+  user-select: none;
+  touch-action: none;
+  transition: transform 0.2s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.civic-ai-launcher:hover {
+  transform: scale(1.06);
+}
+
+.civic-ai-launcher:active,
+.civic-ai-launcher.dragging {
+  cursor: grabbing !important;
+  transform: scale(1.08);
+  transition: none !important;
+}
+
+/* Avatar Circle */
+.civic-ai-avatar-wrapper {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  background: #FFFFFF;
+  border: 3.5px solid #38BDF8;
+  box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45), 0 0 18px rgba(56, 189, 248, 0.55);
+  overflow: visible;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  animation: civicBotGlow 3s ease-in-out infinite alternate;
+}
+
+@keyframes civicBotGlow {
+  0% { box-shadow: 0 10px 25px rgba(37, 99, 235, 0.45), 0 0 12px rgba(56, 189, 248, 0.4); border-color: #38BDF8; }
+  100% { box-shadow: 0 12px 30px rgba(37, 99, 235, 0.6), 0 0 24px rgba(56, 189, 248, 0.85); border-color: #00E5FF; }
+}
+
+.civic-ai-bot-img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+  border-radius: 50%;
+  pointer-events: none;
+  transform: scale(1.18);
+}
+
+/* 3D Question Mark Speech Bubble Badge */
+.civic-ai-speech-bubble {
+  position: absolute;
+  top: -5px;
+  right: -5px;
+  width: 25px;
+  height: 25px;
+  border-radius: 50% 50% 50% 3px;
+  background: #FFFFFF;
+  color: #2563EB;
+  font-size: 13px;
+  font-weight: 800;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+  border: 2px solid #38BDF8;
+  animation: floatBubble 2.5s ease-in-out infinite alternate;
+}
+
+@keyframes floatBubble {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-4px); }
+}
+
+/* Online Pulse Dot */
+.civic-ai-online-pulse {
+  position: absolute;
+  bottom: 0px;
+  right: 1px;
+  width: 14px;
+  height: 14px;
+  background: #10B981;
+  border: 2.5px solid #FFFFFF;
+  border-radius: 50%;
+  box-shadow: 0 0 8px #10B981;
+}
+
+/* Hover Drag Callout Badge */
+.civic-ai-hint-callout {
+  position: absolute;
+  top: -34px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0F172A;
+  color: #FFFFFF;
+  font-size: 0.72rem;
+  font-weight: 700;
+  padding: 0.25rem 0.6rem;
+  border-radius: 9999px;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transition: opacity 0.2s ease, transform 0.2s ease;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.civic-ai-launcher:hover .civic-ai-hint-callout {
+  opacity: 1;
+  transform: translateX(-50%) translateY(-2px);
+}
+
+.civic-ai-drag-handle-glyph {
+  color: #38BDF8;
+  font-size: 0.85rem;
+}
+
+/* Movable Chat Window */
+.civic-ai-window {
+  position: fixed;
+  width: 380px;
+  max-width: calc(100vw - 2rem);
+  height: 560px;
+  max-height: calc(100vh - 40px);
+  background: #FFFFFF;
+  border-radius: 18px;
+  box-shadow: 0 25px 60px rgba(15, 23, 42, 0.25), 0 0 0 1px rgba(15, 23, 42, 0.08);
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+  z-index: 100000;
+  animation: windowPopIn 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes windowPopIn {
+  from { opacity: 0; transform: scale(0.92) translateY(12px); }
+  to { opacity: 1; transform: scale(1) translateY(0); }
+}
+
+/* Window Header */
+.civic-ai-header {
+  background: linear-gradient(135deg, #0F172A 0%, #1E293B 100%);
+  color: #FFFFFF;
+  padding: 0.85rem 1rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+  cursor: grab;
+  user-select: none;
+  touch-action: none;
+}
+
+.civic-ai-header:active,
+.civic-ai-header.dragging {
+  cursor: grabbing !important;
+}
+
+.civic-ai-header-info {
+  display: flex;
+  align-items: center;
+  gap: 0.65rem;
+}
+
+.civic-ai-drag-grip {
+  display: flex;
+  align-items: center;
+  color: #94A3B8;
+  cursor: grab;
+  padding: 2px;
+}
+
+.civic-ai-header-avatar {
+  position: relative;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: 2px solid #38BDF8;
+  overflow: hidden;
+  background: #FFFFFF;
+  flex-shrink: 0;
+}
+
+.civic-ai-header-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+  transform: scale(1.15);
+}
+
+.header-status-dot {
+  position: absolute;
+  bottom: 0;
+  right: 0;
+  width: 9px;
+  height: 9px;
+  background: #10B981;
+  border: 1.5px solid #FFFFFF;
+  border-radius: 50%;
+}
+
+.civic-ai-header-title {
+  font-size: 0.95rem;
+  font-weight: 800;
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+}
+
+.civic-ai-header-sub {
+  font-size: 0.72rem;
+  color: #34D399;
+  font-weight: 600;
+}
+
+.civic-ai-header-actions {
+  display: flex;
+  align-items: center;
+  gap: 0.35rem;
+}
+
+.civic-ai-action-btn {
+  background: transparent;
+  border: none;
+  color: #94A3B8;
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.15s ease;
+}
+
+.civic-ai-action-btn:hover {
+  background: rgba(255, 255, 255, 0.12);
+  color: #FFFFFF;
+}
+
+.civic-ai-action-btn.close-btn {
+  font-size: 1.35rem;
+  line-height: 1;
+  width: 28px;
+  height: 28px;
+}
+
+/* Movable Hint Strip */
+.civic-ai-move-hint-bar {
+  background: #F1F5F9;
+  color: #64748B;
+  font-size: 0.7rem;
+  font-weight: 600;
+  text-align: center;
+  padding: 0.25rem 0.5rem;
+  border-bottom: 1px solid var(--border-subtle);
+  user-select: none;
+  letter-spacing: 0.02em;
+}
+
+/* Messages Scroll Area */
+.civic-ai-messages {
+  flex: 1;
+  overflow-y: auto;
+  padding: 1rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.85rem;
+  background: #F8FAFC;
+}
+
+/* Bot Message Bubble with Avatar */
+.civic-msg-row-bot {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  max-width: 90%;
+}
+
+.civic-msg-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  border: 1.5px solid #38BDF8;
+  overflow: hidden;
+  background: #FFFFFF;
+  flex-shrink: 0;
+  margin-bottom: 2px;
+}
+
+.civic-msg-avatar img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 12%;
+  transform: scale(1.15);
+}
+
+.civic-msg-bubble-bot {
+  background: #FFFFFF;
+  color: var(--text-main);
+  border: 1px solid var(--border-subtle);
+  border-radius: 14px 14px 14px 2px;
+  padding: 0.75rem 0.95rem;
+  font-size: 0.85rem;
+  line-height: 1.55;
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.05);
+}
+
+.civic-msg-bubble-bot strong {
+  font-weight: 700;
+  color: var(--text-main);
+}
+
+.civic-msg-bubble-bot code {
+  background: #EFF6FF;
+  color: var(--brand-blue);
+  padding: 2px 5px;
+  border-radius: 4px;
+  font-family: monospace;
+  font-size: 0.82em;
+}
+
+.civic-msg-bubble-bot a {
+  color: var(--brand-blue);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+/* User Message Bubble */
+.civic-msg-row-user {
+  align-self: flex-end;
+  max-width: 85%;
+}
+
+.civic-msg-bubble-user {
+  background: var(--brand-blue);
+  color: #FFFFFF;
+  border-radius: 14px 14px 2px 14px;
+  padding: 0.75rem 0.95rem;
+  font-size: 0.85rem;
+  line-height: 1.5;
+  box-shadow: 0 2px 8px rgba(37, 99, 235, 0.28);
+  word-break: break-word;
+}
+
+/* Suggestion Action Chips */
+.civic-ai-chips {
+  padding: 0.5rem 0.75rem;
+  background: #FFFFFF;
+  border-top: 1px solid var(--border-subtle);
+  display: flex;
+  gap: 0.45rem;
+  overflow-x: auto;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.civic-ai-chips::-webkit-scrollbar {
+  display: none;
+}
+
+.civic-ai-chip {
+  background: #EFF6FF;
+  color: var(--brand-blue);
+  border: 1px solid var(--brand-blue-border);
+  border-radius: 9999px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  padding: 0.25rem 0.65rem;
+  cursor: pointer;
+  transition: all 0.15s ease;
+  flex-shrink: 0;
+}
+
+.civic-ai-chip:hover {
+  background: var(--brand-blue);
+  color: #FFFFFF;
+  border-color: var(--brand-blue);
+}
+
+/* Input Bar */
+.civic-ai-input-bar {
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.75rem;
+  background: #FFFFFF;
+  border-top: 1px solid var(--border-subtle);
+}
+
+.civic-ai-input-bar input {
+  flex: 1;
+  border: 1px solid var(--border-strong);
+  border-radius: 9999px;
+  padding: 0.6rem 1rem;
+  font-size: 0.875rem;
+  outline: none;
+  font-family: inherit;
+  transition: border-color 0.15s ease;
+}
+
+.civic-ai-input-bar input:focus {
+  border-color: var(--brand-blue);
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.12);
+}
+
+.civic-ai-send-btn {
+  background: var(--brand-blue);
+  color: #FFFFFF;
+  border: none;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  flex-shrink: 0;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.civic-ai-send-btn:hover {
+  background: var(--brand-blue-hover);
+  transform: scale(1.05);
+}
+
+.civic-ai-send-btn:active {
+  transform: scale(0.96);
+}
+
+/* Locked State for Guest Users */
+.civic-ai-locked-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 1.5rem;
+  background: linear-gradient(180deg, #F8FAFC 0%, #EFF6FF 100%);
+  flex: 1;
+  text-align: center;
+  position: relative;
+  overflow-y: auto;
+}
+
+.civic-ai-lock-card {
+  width: 100%;
+  max-width: 320px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  background: #FFFFFF;
+  border: 1px solid var(--border-subtle, #E2E8F0);
+  border-radius: 16px;
+  padding: 1.75rem 1.25rem;
+  box-shadow: 0 10px 25px -5px rgba(15, 23, 42, 0.08), 0 8px 10px -6px rgba(15, 23, 42, 0.04);
+}
+
+.civic-ai-lock-icon-wrap {
+  width: 62px;
+  height: 62px;
+  border-radius: 50%;
+  background: #EFF6FF;
+  border: 2px solid #BFDBFE;
+  color: #2563EB;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 0.85rem;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15);
+  animation: pulseLock 2.5s infinite ease-in-out;
+}
+
+@keyframes pulseLock {
+  0%, 100% { transform: scale(1); box-shadow: 0 4px 12px rgba(37, 99, 235, 0.15); }
+  50% { transform: scale(1.05); box-shadow: 0 8px 18px rgba(37, 99, 235, 0.28); }
+}
+
+.civic-ai-locked-badge {
+  display: inline-block;
+  padding: 0.25rem 0.65rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: #2563EB;
+  background: #DBEAFE;
+  border-radius: 9999px;
+  margin-bottom: 0.6rem;
+}
+
+.civic-ai-locked-title {
+  font-size: 1.15rem;
+  font-weight: 800;
+  color: var(--text-main, #0F172A);
+  margin: 0 0 0.5rem 0;
+  line-height: 1.25;
+}
+
+.civic-ai-locked-msg {
+  font-size: 0.88rem;
+  color: var(--text-muted, #64748B);
+  line-height: 1.5;
+  margin: 0 0 1.25rem 0;
+  font-weight: 500;
+}
+
+.civic-ai-locked-actions {
+  display: flex;
+  gap: 0.65rem;
+  width: 100%;
+  margin-bottom: 1rem;
+}
+
+.civic-ai-auth-btn {
+  flex: 1;
+  padding: 0.65rem 0.75rem;
+  font-size: 0.85rem;
+  font-weight: 700;
+  border-radius: 8px;
+  text-align: center;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s ease;
+}
+
+.civic-ai-btn-login {
+  background: #2563EB;
+  color: #FFFFFF !important;
+  border: 1px solid #1D4ED8;
+  box-shadow: 0 2px 6px rgba(37, 99, 235, 0.25);
+}
+
+.civic-ai-btn-login:hover {
+  background: #1D4ED8;
+}
+
+.civic-ai-btn-signup {
+  background: #F8FAFC;
+  color: #0F172A !important;
+  border: 1px solid #CBD5E1;
+}
+
+.civic-ai-btn-signup:hover {
+  background: #E2E8F0;
+}
+
+.civic-ai-locked-note {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.4rem;
+  font-size: 0.72rem;
+  color: var(--text-subtle, #94A3B8);
+  line-height: 1.4;
+  text-align: left;
+}
+
+.civic-ai-locked-note svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+  color: #3B82F6;
+}
+
+/* Toast Alert for Unauthenticated Interactions */
+.civic-ai-toast {
+  position: absolute;
+  top: 4.5rem;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #0F172A;
+  color: #FFFFFF;
+  padding: 0.55rem 0.95rem;
+  border-radius: 8px;
+  font-size: 0.8rem;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
+  z-index: 1000;
+  animation: fadeInToast 0.2s ease-out;
+  pointer-events: none;
+  white-space: nowrap;
+}
+
+@keyframes fadeInToast {
+  from { opacity: 0; transform: translate(-50%, -6px); }
+  to { opacity: 1; transform: translate(-50%, 0); }
+}
+</style>
+
+<script>
+// =====================================================================
+// MOVABLE AI CIVIC ASSISTANT CONTROLLER
+// Complete Drag-and-Drop + Touch Movement + Chat Intelligence Engine
+// =====================================================================
+(function() {
+  const launcher = document.getElementById('civicAiLauncher');
+  const chatWindow = document.getElementById('civicAiWindow');
+  const header = document.getElementById('civicAiHeader');
+  const closeBtn = document.getElementById('civicAiCloseBtn');
+  const clearBtn = document.getElementById('civicAiClearBtn');
+  const resetPosBtn = document.getElementById('civicAiResetPosBtn');
+  const messagesDiv = document.getElementById('civicAiMessages');
+  const inputForm = document.getElementById('civicAiInputForm');
+  const textInput = document.getElementById('civicAiTextInput');
+  const chipsContainer = document.getElementById('civicAiChipsContainer');
+  const lockedStateDiv = document.getElementById('civicAiLockedState');
+  const toastDiv = document.getElementById('civicAiToast');
+  const toastMsg = document.getElementById('civicAiToastMsg');
+
+  // Authentication Guard: Injected from server context
+  const IS_AUTHENTICATED = {{ 'true' if current_user else 'false' }};
+
+  const BOT_AVATAR_URL = "{{ url_for('static', filename='images/civic_bot.png') }}";
+  const STORAGE_MSG_KEY = 'civic_connects_ai_history';
+  const STORAGE_LAUNCHER_POS = 'civic_connects_launcher_pos';
+  const STORAGE_WINDOW_POS = 'civic_connects_window_pos';
+
+  let toastTimer = null;
+  function showToast(msg) {
+    if (!toastDiv || !toastMsg) return;
+    toastMsg.textContent = msg || "Please log in or sign up to continue.";
+    toastDiv.style.display = 'flex';
+    clearTimeout(toastTimer);
+    toastTimer = setTimeout(() => {
+      toastDiv.style.display = 'none';
+    }, 3200);
+  }
+
+  // Default welcome message featuring character identity
+  const DEFAULT_HISTORY = [
+    {
+      sender: 'bot',
+      text: "👋 **Hello! I'm your Civic Assistant!**\n\nI can help you report issues with GPS, track real-time ticket statuses (e.g. `#CC-1001`), and learn about municipal boards.\n\n💡 *Tip: You can click and drag both me and this chat window anywhere on your screen!*"
+    }
+  ];
+
+  // -------------------------------------------------------------------
+  // 1. POSITION PERSISTENCE & RESTORATION
+  // -------------------------------------------------------------------
+  function restoreLauncherPosition() {
+    try {
+      const saved = localStorage.getItem(STORAGE_LAUNCHER_POS);
+      if (saved) {
+        const pos = JSON.parse(saved);
+        const maxL = window.innerWidth - launcher.offsetWidth - 10;
+        const maxT = window.innerHeight - launcher.offsetHeight - 10;
+        const left = Math.max(10, Math.min(maxL, pos.left));
+        const top = Math.max(10, Math.min(maxT, pos.top));
+        
+        launcher.style.left = left + 'px';
+        launcher.style.top = top + 'px';
+        launcher.style.right = 'auto';
+        launcher.style.bottom = 'auto';
+      }
+    } catch (e) {}
+  }
+
+  function restoreWindowPosition() {
+    try {
+      const saved = localStorage.getItem(STORAGE_WINDOW_POS);
+      if (saved) {
+        const pos = JSON.parse(saved);
+        const maxL = window.innerWidth - chatWindow.offsetWidth - 10;
+        const maxT = window.innerHeight - chatWindow.offsetHeight - 10;
+        const left = Math.max(10, Math.min(maxL, pos.left));
+        const top = Math.max(10, Math.min(maxT, pos.top));
+
+        chatWindow.style.left = left + 'px';
+        chatWindow.style.top = top + 'px';
+        chatWindow.style.right = 'auto';
+        chatWindow.style.bottom = 'auto';
+        return true;
+      }
+    } catch (e) {}
+    return false;
+  }
+
+  function resetAllPositions() {
+    localStorage.removeItem(STORAGE_LAUNCHER_POS);
+    localStorage.removeItem(STORAGE_WINDOW_POS);
+
+    launcher.style.left = 'auto';
+    launcher.style.top = 'auto';
+    launcher.style.right = '1.5rem';
+    launcher.style.bottom = '1.5rem';
+
+    chatWindow.style.left = 'auto';
+    chatWindow.style.top = 'auto';
+    chatWindow.style.right = '1.5rem';
+    chatWindow.style.bottom = '5.5rem';
+  }
+
+  // -------------------------------------------------------------------
+  // 2. DRAG AND DROP: MOVABLE LAUNCHER BUTTON
+  // -------------------------------------------------------------------
+  (function initLauncherDrag() {
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let initLeft = 0, initTop = 0;
+    let hasMoved = false;
+
+    function onPointerDown(e) {
+      if (e.button !== undefined && e.button !== 0) return; // Only left mouse button
+
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+      startX = clientX;
+      startY = clientY;
+
+      const rect = launcher.getBoundingClientRect();
+      initLeft = rect.left;
+      initTop = rect.top;
+
+      hasMoved = false;
+      isDragging = true;
+
+      document.addEventListener('mousemove', onPointerMove, { passive: false });
+      document.addEventListener('mouseup', onPointerUp);
+      document.addEventListener('touchmove', onPointerMove, { passive: false });
+      document.addEventListener('touchend', onPointerUp);
+    }
+
+    function onPointerMove(e) {
+      if (!isDragging) return;
+
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+      const dx = clientX - startX;
+      const dy = clientY - startY;
+
+      if (!hasMoved && Math.hypot(dx, dy) > 5) {
+        hasMoved = true;
+        launcher.classList.add('dragging');
+      }
+
+      if (hasMoved) {
+        if (e.cancelable) e.preventDefault();
+
+        let newLeft = initLeft + dx;
+        let newTop = initTop + dy;
+
+        // Viewport clamping
+        const maxL = window.innerWidth - launcher.offsetWidth - 10;
+        const maxT = window.innerHeight - launcher.offsetHeight - 10;
+
+        newLeft = Math.max(10, Math.min(maxL, newLeft));
+        newTop = Math.max(10, Math.min(maxT, newTop));
+
+        launcher.style.left = newLeft + 'px';
+        launcher.style.top = newTop + 'px';
+        launcher.style.right = 'auto';
+        launcher.style.bottom = 'auto';
+      }
+    }
+
+    function onPointerUp(e) {
+      if (!isDragging) return;
+      isDragging = false;
+      launcher.classList.remove('dragging');
+
+      document.removeEventListener('mousemove', onPointerMove);
+      document.removeEventListener('mouseup', onPointerUp);
+      document.removeEventListener('touchmove', onPointerMove);
+      document.removeEventListener('touchend', onPointerUp);
+
+      if (hasMoved) {
+        // Save final position
+        const rect = launcher.getBoundingClientRect();
+        try {
+          localStorage.setItem(STORAGE_LAUNCHER_POS, JSON.stringify({ left: rect.left, top: rect.top }));
+        } catch (err) {}
+      } else {
+        // Was a normal click: toggle chat window
+        toggleChatWindow();
+      }
+    }
+
+    launcher.addEventListener('mousedown', onPointerDown);
+    launcher.addEventListener('touchstart', onPointerDown, { passive: true });
+  })();
+
+  // -------------------------------------------------------------------
+  // 3. DRAG AND DROP: MOVABLE CHAT WINDOW
+  // -------------------------------------------------------------------
+  (function initWindowDrag() {
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let initLeft = 0, initTop = 0;
+
+    function onHeaderDown(e) {
+      // Ignore if clicking action buttons
+      if (e.target.closest('.civic-ai-action-btn')) return;
+      if (e.button !== undefined && e.button !== 0) return;
+
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+      startX = clientX;
+      startY = clientY;
+
+      const rect = chatWindow.getBoundingClientRect();
+      initLeft = rect.left;
+      initTop = rect.top;
+
+      isDragging = true;
+      header.classList.add('dragging');
+
+      document.addEventListener('mousemove', onHeaderMove, { passive: false });
+      document.addEventListener('mouseup', onHeaderUp);
+      document.addEventListener('touchmove', onHeaderMove, { passive: false });
+      document.addEventListener('touchend', onHeaderUp);
+    }
+
+    function onHeaderMove(e) {
+      if (!isDragging) return;
+
+      const clientX = e.clientX || (e.touches && e.touches[0].clientX);
+      const clientY = e.clientY || (e.touches && e.touches[0].clientY);
+
+      const dx = clientX - startX;
+      const dy = clientY - startY;
+
+      if (e.cancelable) e.preventDefault();
+
+      let newLeft = initLeft + dx;
+      let newTop = initTop + dy;
+
+      // Viewport boundary clamp
+      const maxL = window.innerWidth - chatWindow.offsetWidth - 10;
+      const maxT = window.innerHeight - chatWindow.offsetHeight - 10;
+
+      newLeft = Math.max(10, Math.min(maxL, newLeft));
+      newTop = Math.max(10, Math.min(maxT, newTop));
+
+      chatWindow.style.left = newLeft + 'px';
+      chatWindow.style.top = newTop + 'px';
+      chatWindow.style.right = 'auto';
+      chatWindow.style.bottom = 'auto';
+    }
+
+    function onHeaderUp() {
+      if (!isDragging) return;
+      isDragging = false;
+      header.classList.remove('dragging');
+
+      document.removeEventListener('mousemove', onHeaderMove);
+      document.removeEventListener('mouseup', onHeaderUp);
+      document.removeEventListener('touchmove', onHeaderMove);
+      document.removeEventListener('touchend', onHeaderUp);
+
+      const rect = chatWindow.getBoundingClientRect();
+      try {
+        localStorage.setItem(STORAGE_WINDOW_POS, JSON.stringify({ left: rect.left, top: rect.top }));
+      } catch (err) {}
+    }
+
+    header.addEventListener('mousedown', onHeaderDown);
+    header.addEventListener('touchstart', onHeaderDown, { passive: true });
+  })();
+
+  // -------------------------------------------------------------------
+  // 4. TOGGLE CHAT WINDOW & POSITIONING
+  // -------------------------------------------------------------------
+  function toggleChatWindow() {
+    const isHidden = chatWindow.style.display === 'none' || chatWindow.style.display === '';
+    if (isHidden) {
+      openChatWindow();
+    } else {
+      closeChatWindow();
+    }
+  }
+
+  function openChatWindow() {
+    chatWindow.style.display = 'flex';
+    
+    // Position intelligently near launcher if no saved position exists
+    if (!restoreWindowPosition()) {
+      const launcherRect = launcher.getBoundingClientRect();
+      const winW = 380;
+      const winH = 560;
+
+      let targetLeft = launcherRect.left - winW + launcherRect.width;
+      let targetTop = launcherRect.top - winH - 12;
+
+      // Adjust if going off-screen
+      if (targetLeft < 10) targetLeft = launcherRect.left;
+      if (targetLeft + winW > window.innerWidth - 10) targetLeft = window.innerWidth - winW - 10;
+      if (targetTop < 10) targetTop = launcherRect.bottom + 12;
+
+      chatWindow.style.left = targetLeft + 'px';
+      chatWindow.style.top = targetTop + 'px';
+      chatWindow.style.right = 'auto';
+      chatWindow.style.bottom = 'auto';
+    }
+
+    if (IS_AUTHENTICATED) {
+      if (lockedStateDiv) lockedStateDiv.style.display = 'none';
+      if (messagesDiv) messagesDiv.style.display = 'flex';
+      if (chipsContainer) chipsContainer.style.display = 'flex';
+      if (inputForm) inputForm.style.display = 'flex';
+      if (clearBtn) clearBtn.style.display = 'inline-flex';
+      renderMessages();
+      setTimeout(() => textInput && textInput.focus(), 120);
+    } else {
+      // Guest / unauthenticated:
+      // Do NOT load the full assistant conversation
+      if (lockedStateDiv) lockedStateDiv.style.display = 'flex';
+      if (messagesDiv) messagesDiv.style.display = 'none';
+      if (chipsContainer) chipsContainer.style.display = 'none';
+      if (inputForm) inputForm.style.display = 'none';
+      if (clearBtn) clearBtn.style.display = 'none';
+    }
+  }
+
+  function closeChatWindow() {
+    chatWindow.style.display = 'none';
+  }
+
+  // -------------------------------------------------------------------
+  // 5. MESSAGE HISTORY & RENDERING
+  // -------------------------------------------------------------------
+  function getHistory() {
+    try {
+      const saved = sessionStorage.getItem(STORAGE_MSG_KEY);
+      return saved ? JSON.parse(saved) : DEFAULT_HISTORY;
+    } catch (e) {
+      return DEFAULT_HISTORY;
+    }
+  }
+
+  function saveHistory(history) {
+    try {
+      sessionStorage.setItem(STORAGE_MSG_KEY, JSON.stringify(history));
+    } catch (e) {}
+  }
+
+  function formatMessageText(text) {
+    return text
+      .replace(/\*\*(.*?)\*\*/g, '<strong>$1</strong>')
+      .replace(/\*(.*?)\*/g, '<em>$1</em>')
+      .replace(/`#(CC-\d+)`/g, '<code>#$1</code>')
+      .replace(/`(.*?)`/g, '<code>$1</code>')
+      .replace(/\[(.*?)\]\((.*?)\)/g, '<a href="$2">$1</a>')
+      .replace(/\n/g, '<br>');
+  }
+
+  function renderMessages() {
+    const history = getHistory();
+    messagesDiv.innerHTML = '';
+
+    history.forEach(item => {
+      if (item.sender === 'user') {
+        const row = document.createElement('div');
+        row.className = 'civic-msg-row-user';
+        row.innerHTML = `<div class="civic-msg-bubble-user">${formatMessageText(item.text)}</div>`;
+        messagesDiv.appendChild(row);
+      } else {
+        const row = document.createElement('div');
+        row.className = 'civic-msg-row-bot';
+        row.innerHTML = `
+          <div class="civic-msg-avatar" title="Civic Assistant AI">
+            <img src="${BOT_AVATAR_URL}" alt="Bot" draggable="false">
+          </div>
+          <div class="civic-msg-bubble-bot">${formatMessageText(item.text)}</div>
+        `;
+        messagesDiv.appendChild(row);
+      }
+    });
+
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function appendMessage(sender, text) {
+    const history = getHistory();
+    history.push({ sender, text });
+    saveHistory(history);
+    renderMessages();
+  }
+
+  function showTypingIndicator() {
+    const id = 'civicAiTypingIndicator';
+    if (document.getElementById(id)) return;
+    const row = document.createElement('div');
+    row.id = id;
+    row.className = 'civic-msg-row-bot';
+    row.innerHTML = `
+      <div class="civic-msg-avatar">
+        <img src="${BOT_AVATAR_URL}" alt="Bot">
+      </div>
+      <div class="civic-msg-bubble-bot" style="color: var(--text-muted); font-size: 0.8rem;">
+        Assistant is checking municipal records...
+      </div>
+    `;
+    messagesDiv.appendChild(row);
+    messagesDiv.scrollTop = messagesDiv.scrollHeight;
+  }
+
+  function removeTypingIndicator() {
+    const el = document.getElementById('civicAiTypingIndicator');
+    if (el) el.remove();
+  }
+
+  function updateChips(suggestions) {
+    if (!chipsContainer || !suggestions || suggestions.length === 0) return;
+    chipsContainer.innerHTML = '';
+    suggestions.forEach(s => {
+      const btn = document.createElement('button');
+      btn.className = 'civic-ai-chip';
+      btn.textContent = s;
+      btn.onclick = function() {
+        sendCivicAiChipMessage(s);
+      };
+      chipsContainer.appendChild(btn);
+    });
+  }
+
+  async function handleUserSend(rawText) {
+    if (!IS_AUTHENTICATED) {
+      showToast("Please log in or sign up to continue.");
+      return;
+    }
+
+    const text = rawText.trim();
+    if (!text) return;
+
+    appendMessage('user', text);
+    textInput.value = '';
+    showTypingIndicator();
+
+    try {
+      const res = await fetch('/api/ai-chat', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ message: text })
+      });
+
+      if (res.status === 401) {
+        removeTypingIndicator();
+        showToast("Please log in or sign up to continue.");
+        if (lockedStateDiv) lockedStateDiv.style.display = 'flex';
+        if (messagesDiv) messagesDiv.style.display = 'none';
+        if (chipsContainer) chipsContainer.style.display = 'none';
+        if (inputForm) inputForm.style.display = 'none';
+        if (clearBtn) clearBtn.style.display = 'none';
+        return;
+      }
+
+      const data = await res.json();
+      removeTypingIndicator();
+
+      if (data && data.reply) {
+        appendMessage('bot', data.reply);
+        if (data.suggestions) {
+          updateChips(data.suggestions);
+        }
+      } else {
+        appendMessage('bot', "I couldn't reach the municipal service backend right now. Please try again shortly.");
+      }
+    } catch (err) {
+      removeTypingIndicator();
+      appendMessage('bot', "Network notice: Failed to connect to assistant service. Please check your connection.");
+    }
+  }
+
+  window.sendCivicAiChipMessage = function(chipText) {
+    if (!IS_AUTHENTICATED) {
+      showToast("Please log in or sign up to continue.");
+      return;
+    }
+    handleUserSend(chipText);
+  };
+
+  // Event Listeners
+  if (closeBtn) closeBtn.addEventListener('click', closeChatWindow);
+
+  if (clearBtn) {
+    clearBtn.addEventListener('click', function() {
+      sessionStorage.removeItem(STORAGE_MSG_KEY);
+      renderMessages();
+    });
+  }
+
+  if (resetPosBtn) {
+    resetPosBtn.addEventListener('click', function(e) {
+      e.stopPropagation();
+      resetAllPositions();
+    });
+  }
+
+  if (inputForm) {
+    inputForm.addEventListener('submit', function(e) {
+      e.preventDefault();
+      handleUserSend(textInput.value);
+    });
+  }
+
+  // Restore saved positions on page load
+  restoreLauncherPosition();
+  if (IS_AUTHENTICATED) {
+    renderMessages();
+  }
+
+  // Keep inside viewport if user resizes browser window
+  window.addEventListener('resize', function() {
+    restoreLauncherPosition();
+    if (chatWindow.style.display !== 'none') {
+      restoreWindowPosition();
+    }
+  });
+
+})();
+</script>
